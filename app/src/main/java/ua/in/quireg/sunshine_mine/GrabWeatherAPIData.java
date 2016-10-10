@@ -1,5 +1,6 @@
 package ua.in.quireg.sunshine_mine;
 
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -8,7 +9,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,21 +21,44 @@ public final class GrabWeatherAPIData {
     private static final String LOG_TAG = "GrabWeatherAPIData";
     private static String forecastJsonStrOld;
 
-    static String grabData(Map<String, String> param){
+    static String grabData(Map<String, String> param) throws IOException {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
         // Construct the URL for the OpenWeatherMap query
         // Possible parameters are available at OWM's forecast API page, at
         // http://openweathermap.org/API#forecast
-        String urlRequest = "http://api.openweathermap.org/data/2.5/forecast/daily?" + "id=" + param.get("cityID") + "&"
-                + "mode=" + param.get("mode") + "&" + "cnt=" + param.get("numberOfDays") + "&" + "units=" + param.get("units") + "&APPID=" + APIkey;
+
+        Uri.Builder uriRequest = new Uri.Builder();
+        uriRequest.scheme("http");
+        uriRequest.authority("api.openweathermap.org");
+        uriRequest.appendPath("data");
+        uriRequest.appendPath("2.5");
+        uriRequest.appendPath("forecast");
+        uriRequest.appendPath("daily");
+        if (param.get("cityID") != null) {
+            uriRequest.appendQueryParameter("id", param.get("cityID"));
+        }
+        else if(param.get("cityPostCode") !=null && param.get("cityID") == null){
+            uriRequest.appendQueryParameter("zip", param.get("cityPostCode"));
+        }else{
+            throw new IOException();
+        }
+
+        uriRequest.appendQueryParameter("mode", param.get("mode"));
+        uriRequest.appendQueryParameter("cnt", param.get("numberOfDays"));
+        uriRequest.appendQueryParameter("units", param.get("units"));
+        uriRequest.appendQueryParameter("APPID", APIkey);
+
+//        String urlRequest = "http://api.openweathermap.org/data/2.5/forecast/daily?" + "id=" + param.get("cityID") + "&"
+//                + "mode=" + param.get("mode") + "&" + "cnt=" + param.get("numberOfDays") + "&" + "units=" +
+//                param.get("units") + "&APPID=" + APIkey;
         String forecastJsonStr = null;
         try {
-            Log.d("GrabWeatherAPIData", "Attempting to fetch:" + urlRequest);
+            Log.d("GrabWeatherAPIData", "Attempting to fetch:" + uriRequest.toString());
 
 
-            URL url = new URL(urlRequest);
+            URL url = new URL(uriRequest.toString());
 
             // Create the request to OpenWeatherMap, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
@@ -63,17 +86,17 @@ public final class GrabWeatherAPIData {
             if (buffer.length() == 0) {
                 // Stream was empty.  No point in parsing.
                 forecastJsonStr = forecastJsonStrOld;
-                return  forecastJsonStr;
+                return forecastJsonStr;
             }
             forecastJsonStr = buffer.toString();
-            Log.v(LOG_TAG, "Forecast JSON string" + forecastJsonStr);
+            Log.v(LOG_TAG, "Forecast JSON string:" + forecastJsonStr);
             forecastJsonStrOld = forecastJsonStr;
         } catch (IOException e) {
             Log.e("GrabWeatherAPIData", "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attempting
             // to parse it.
             forecastJsonStr = forecastJsonStrOld;
-        } finally{
+        } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
             }

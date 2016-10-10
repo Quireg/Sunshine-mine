@@ -18,11 +18,13 @@ import android.widget.ListView;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import static java.lang.System.exit;
 
@@ -33,9 +35,8 @@ import static java.lang.System.exit;
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class ForecastFragment extends Fragment {
 
-    private RetrieveWeatherInBackground task;
     private Map<String, String> requestParams;
-
+    private ArrayAdapter<String> arrayAdapter;
     public ForecastFragment() {
     }
 
@@ -56,8 +57,15 @@ public class ForecastFragment extends Fragment {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                task = new RetrieveWeatherInBackground();
+                RetrieveWeatherInBackground task = new RetrieveWeatherInBackground();
                 task.execute(requestParams);
+                try {
+                    updateAdapter(task.get());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -67,67 +75,48 @@ public class ForecastFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
-        JSONArray realDataForKyivJSON;
-        /*if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-            try {
-                realDataForKyivJSON = new JSONArray(task.execute(requestParams));
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }*/
-
-        List<String> realDataForKyiv;
-
-        String[] fakeData = {
-                "Thursday - 8 June - 24 deg",
-                "Friday - 9 June - 25 deg",
-                "Saturday - 10 June - 26 deg",
-                "Sunday - 11 June - 27 deg",
-                "Monday - 12 June - 28 deg",
-                "Tuesday - 13 June - 29 deg",
-                "Wednesday - 14 June - 30 deg",
-                "Thursday - 8 June - 24 deg",
-                "Friday - 9 June - 25 deg",
-                "Saturday - 10 June - 26 deg",
-                "Sunday - 11 June - 27 deg",
-                "Monday - 12 June - 28 deg",
-                "Tuesday - 13 June - 29 deg",
-                "Wednesday - 14 June - 30 deg",
-                "Thursday - 8 June - 24 deg",
-                "Friday - 9 June - 25 deg",
-                "Saturday - 10 June - 26 deg",
-                "Sunday - 11 June - 27 deg",
-                "Monday - 12 June - 28 deg",
-                "Tuesday - 13 June - 29 deg",
-                "Wednesday - 14 June - 30 deg",
-        };
-
-        List<String> arrayListOfFakeData = new ArrayList<>(Arrays.asList(fakeData));
-
-
+        List<String> arrayListOfRealData;
+        arrayListOfRealData = new ArrayList<>(Arrays.asList("No Data To Display"));
         ListView lv = (ListView) rootView.findViewById(R.id.listview_forecast);
 
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getActivity(),
+        arrayAdapter = new ArrayAdapter<String>(getActivity(),
                 R.layout.list_item_forecast,
-                arrayListOfFakeData);
+                arrayListOfRealData);
         lv.setAdapter(arrayAdapter);
         return rootView;
+
+    }
+    private void updateAdapter(String[] data){
+        List<String> arrayListOfData = new ArrayList<>(Arrays.asList(data));
+        arrayAdapter.clear();
+        for (int i = 0; i < arrayListOfData.size(); i++) {
+            arrayAdapter.insert(arrayListOfData.get(i), i);
+        }
+        arrayAdapter.notifyDataSetChanged();
 
     }
     private void initializeWeatherParameters(){
         requestParams = new HashMap<>();
         requestParams.put("cityID", "703448");
-        requestParams.put("numberOfDays", "7");
+        requestParams.put("cityPostCode", "01032");
+        requestParams.put("numberOfDays", "15");
         requestParams.put("units", "metric");
         requestParams.put("mode", "json");
     }
 
-    private class RetrieveWeatherInBackground extends AsyncTask<Map<String, String>, Void, String> {
+    private class RetrieveWeatherInBackground extends AsyncTask<Map<String, String>, Void, String[]> {
         @Override
-        protected String doInBackground(Map<String, String>... params) {
-            return GrabWeatherAPIData.grabData(params[0]);
+        protected String[] doInBackground(Map<String, String>... params) {
+            try {
+                String JSONData = GrabWeatherAPIData.grabData(params[0]);
+                WeatherDataParser wdp = new WeatherDataParser();
+                return wdp.getWeatherDataFromJson(JSONData, 15);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
         }
     }
 
