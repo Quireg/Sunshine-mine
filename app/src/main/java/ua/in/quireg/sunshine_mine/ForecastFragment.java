@@ -1,8 +1,6 @@
 package ua.in.quireg.sunshine_mine;
 
-import android.annotation.TargetApi;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -15,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -24,21 +21,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
-import static java.lang.System.exit;
 
 /**
  * Created by Artur Menchenko on 10/3/2016.
  */
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class ForecastFragment extends Fragment {
 
     private Map<String, String> requestParams;
     private ArrayAdapter<String> arrayAdapter;
-    public ForecastFragment() {
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,17 +46,21 @@ public class ForecastFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
+        System.out.println(item.getItemId());
         switch (item.getItemId()) {
+
             case R.id.action_refresh:
                 RetrieveWeatherInBackground task = new RetrieveWeatherInBackground();
                 task.execute(requestParams);
-                try {
-                    updateAdapter(task.get());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
+                return true;
+
+            case R.id.exit_action:
+                System.exit(0);
+                return true;
+
+            case R.id.main_settings:
+                System.out.println("blah");
+                return true;
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -75,26 +70,14 @@ public class ForecastFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        List<String> arrayListOfRealData;
-        arrayListOfRealData = new ArrayList<>(Arrays.asList("No Data To Display"));
         ListView lv = (ListView) rootView.findViewById(R.id.listview_forecast);
-
         arrayAdapter = new ArrayAdapter<String>(getActivity(),
                 R.layout.list_item_forecast,
-                arrayListOfRealData);
+                new ArrayList<>(Arrays.asList("No Data To Display")));
         lv.setAdapter(arrayAdapter);
         return rootView;
-
     }
-    private void updateAdapter(String[] data){
-        List<String> arrayListOfData = new ArrayList<>(Arrays.asList(data));
-        arrayAdapter.clear();
-        for (int i = 0; i < arrayListOfData.size(); i++) {
-            arrayAdapter.insert(arrayListOfData.get(i), i);
-        }
-        arrayAdapter.notifyDataSetChanged();
 
-    }
     private void initializeWeatherParameters(){
         requestParams = new HashMap<>();
         requestParams.put("cityID", "703448");
@@ -106,11 +89,21 @@ public class ForecastFragment extends Fragment {
 
     private class RetrieveWeatherInBackground extends AsyncTask<Map<String, String>, Void, String[]> {
         @Override
+        protected void onPostExecute(String[] strings) {
+            List<String> arrayListOfData = new ArrayList<>(Arrays.asList(strings));
+            arrayAdapter.clear();
+            for (int i = 0; i < arrayListOfData.size(); i++) {
+                arrayAdapter.insert(arrayListOfData.get(i), i);
+            }
+            arrayAdapter.notifyDataSetChanged();
+        }
+
+        @Override
         protected String[] doInBackground(Map<String, String>... params) {
             try {
                 String JSONData = GrabWeatherAPIData.grabData(params[0]);
                 WeatherDataParser wdp = new WeatherDataParser();
-                return wdp.getWeatherDataFromJson(JSONData, 15);
+                return wdp.getWeatherDataFromJson(JSONData);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {

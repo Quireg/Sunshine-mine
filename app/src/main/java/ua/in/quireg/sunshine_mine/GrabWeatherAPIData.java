@@ -18,10 +18,12 @@ import java.util.Map;
 public final class GrabWeatherAPIData {
 
     private static final String APIkey = "a3e3e85f9b157042fe69042cdefee044";
-    private static final String LOG_TAG = "GrabWeatherAPIData";
+    private static final String LOG_TAG = GrabWeatherAPIData.class.getSimpleName();
     private static String forecastJsonStrOld;
 
-    static String grabData(Map<String, String> param) throws IOException {
+
+    //URIBuilder is unsafe for concurrency so it`s better to make whole method synchronized.
+    static synchronized String grabData(Map<String, String> param) throws IOException {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
@@ -50,9 +52,6 @@ public final class GrabWeatherAPIData {
         uriRequest.appendQueryParameter("units", param.get("units"));
         uriRequest.appendQueryParameter("APPID", APIkey);
 
-//        String urlRequest = "http://api.openweathermap.org/data/2.5/forecast/daily?" + "id=" + param.get("cityID") + "&"
-//                + "mode=" + param.get("mode") + "&" + "cnt=" + param.get("numberOfDays") + "&" + "units=" +
-//                param.get("units") + "&APPID=" + APIkey;
         String forecastJsonStr = null;
         try {
             Log.d("GrabWeatherAPIData", "Attempting to fetch:" + uriRequest.toString());
@@ -89,7 +88,7 @@ public final class GrabWeatherAPIData {
                 return forecastJsonStr;
             }
             forecastJsonStr = buffer.toString();
-            Log.v(LOG_TAG, "Forecast JSON string:" + forecastJsonStr);
+            Log.d(LOG_TAG, "Forecast JSON string:" + forecastJsonStr);
             forecastJsonStrOld = forecastJsonStr;
         } catch (IOException e) {
             Log.e("GrabWeatherAPIData", "Error ", e);

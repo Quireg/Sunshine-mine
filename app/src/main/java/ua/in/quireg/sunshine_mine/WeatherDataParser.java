@@ -10,8 +10,8 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 
 
-public class WeatherDataParser {
-    private final String LOG_TAG = this.getClass().getSimpleName();
+final class WeatherDataParser {
+    private final String LOG_TAG = WeatherDataParser.class.getSimpleName();
 
     /* The date/time conversion code is going to be moved outside the asynctask later,
      * so for convenience we're breaking it out into its own method now.
@@ -42,7 +42,7 @@ public class WeatherDataParser {
      * Fortunately parsing is easy:  constructor takes the JSON string and converts it
      * into an Object hierarchy for us.
      */
-    String[] getWeatherDataFromJson(String forecastJsonStr, int numDays)
+    String[] getWeatherDataFromJson(String forecastJsonStr)
             throws JSONException {
 
         // These are the names of the JSON objects that need to be extracted.
@@ -73,7 +73,7 @@ public class WeatherDataParser {
         // now we work exclusively in UTC
         dayTime = new Time();
 
-        String[] resultStrs = new String[numDays];
+        String[] resultStrs = new String[weatherArray.length()];
         for(int i = 0; i < weatherArray.length(); i++) {
             // For now, using the format "Day, description, hi/low"
             String day;
