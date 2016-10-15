@@ -1,5 +1,6 @@
 package ua.in.quireg.sunshine_mine;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,8 +11,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 
@@ -59,7 +62,8 @@ public class ForecastFragment extends Fragment {
                 return true;
 
             case R.id.main_settings:
-                System.out.println("blah");
+                Intent intent = new Intent(getContext(), SettingsActivity.class);
+                startActivity(intent);
                 return true;
 
             default:
@@ -75,6 +79,20 @@ public class ForecastFragment extends Fragment {
                 R.layout.list_item_forecast,
                 new ArrayList<>(Arrays.asList("No Data To Display")));
         lv.setAdapter(arrayAdapter);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Toast toast = Toast.makeText(getContext(), parent.getItemAtPosition(position).toString(), Toast.LENGTH_SHORT);
+                toast.show();
+
+                Intent newIntent = new Intent(getContext(), DetailActivity.class);
+                newIntent.putExtra("weather", parent.getItemAtPosition(position).toString());
+                startActivity(newIntent);
+
+            }
+        });
+
         return rootView;
     }
 

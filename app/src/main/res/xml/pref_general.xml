@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PereferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <EditTextPreference
+        android:title="@string/settings_location_tag"
+        android:key="@string/settings_location_key"
+        android:defaultValue="@string/settings_location_def_value"
+        android:inputType="text"
+        android:singleLine="true"
+        />
+
+</PereferenceScreen>
