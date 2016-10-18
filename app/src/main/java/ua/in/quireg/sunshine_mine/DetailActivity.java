@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,8 +15,11 @@ import android.content.Intent;
 
 public class DetailActivity extends AppCompatActivity {
 
+    private final static String LOG_TAG = DetailActivity.class.getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "Activity started");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
         //Obtain intent and propagate it`s parameters to DetailActivityFragment
