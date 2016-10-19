@@ -1,5 +1,7 @@
 package ua.in.quireg.sunshine_mine;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
 
@@ -11,6 +13,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
 
+import static android.content.Context.MODE_PRIVATE;
+
 /**
  * Created by Artur Menchenko on 9/29/2016.
  */
@@ -20,12 +24,16 @@ public final class GrabWeatherAPIData {
     private static final String APIkey = "a3e3e85f9b157042fe69042cdefee044";
     private static final String LOG_TAG = GrabWeatherAPIData.class.getSimpleName();
     private static String forecastJsonStrOld;
+    private static final String PREF_FILE_NAME = "pref_general.xml";
 
+    private static SharedPreferences preferences ;
 
     //URIBuilder is unsafe for concurrency so it`s better to make whole method synchronized.
     static synchronized String grabData(Map<String, String> param) throws IOException {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
+
+        preferences =  getContext().getSharedPreferences(PREF_FILE_NAME, MODE_PRIVATE);
 
         // Construct the URL for the OpenWeatherMap query
         // Possible parameters are available at OWM's forecast API page, at

@@ -1,8 +1,10 @@
 package ua.in.quireg.sunshine_mine;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -24,6 +26,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by Artur Menchenko on 10/3/2016.
@@ -97,7 +101,12 @@ public class ForecastFragment extends Fragment {
     }
 
     private void initializeWeatherParameters(){
+        //TODO get rid of this method.
         requestParams = new HashMap<>();
+
+        //get location from params
+
+
         requestParams.put("cityID", "703448");
         requestParams.put("cityPostCode", "01032");
         requestParams.put("numberOfDays", "15");
