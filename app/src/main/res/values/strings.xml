@@ -10,4 +10,14 @@
     <string name="settings_location_key" translatable="false">location</string>
     <string name="settings_location_def_value" translatable="false">703448</string>
 
+    <string name="settings_dayscount_tag">Days Count</string>
+    <string name="settings_dayscount_key" translatable="false">days_cnt</string>
+    <string name="settings_dayscount_def_value" translatable="false">15</string>
+
+    <string name="settings_units_tag">Units</string>
+    <string name="settings_units_celsius">Celsius</string>
+    <string name="settings_units_fahrenheit">Fahrenheit</string>
+    <string name="settings_units_key" translatable="false">units</string>
+
+
 </resources>

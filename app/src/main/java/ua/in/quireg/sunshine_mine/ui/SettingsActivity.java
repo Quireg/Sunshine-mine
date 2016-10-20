@@ -10,6 +10,8 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.View;
 
 import ua.in.quireg.sunshine_mine.R;
 
@@ -26,14 +28,24 @@ public class SettingsActivity extends PreferenceActivity
     private static final String LOG_TAG = SettingsActivity.class.getSimpleName();
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.detail, menu);
+        return true;
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.d(LOG_TAG, "Settings launched");
         super.onCreate(savedInstanceState);
+
         addPreferencesFromResource(R.xml.pref_general);
 
         // For all preferences, attach an OnPreferenceChangeListener so the UI summary can be
         // updated when the preference changes.
         bindPreferenceSummaryToValue(findPreference(getString(R.string.settings_location_key)));
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.settings_dayscount_key)));
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.settings_units_key)));
     }
 
     /**

@@ -113,8 +113,8 @@ public class ForecastFragment extends Fragment {
         //get location from params
         requestParams.put(WeatherAPIParams.CITY_ID, pref.getString(getString(R.string.settings_location_key),""));
         requestParams.put(WeatherAPIParams.ZIP_CODE, "01032");
-        requestParams.put(WeatherAPIParams.DAYS_COUNT, "14");
-        requestParams.put(WeatherAPIParams.UNITS, "metric");
+        requestParams.put(WeatherAPIParams.DAYS_COUNT, pref.getString(getString(R.string.settings_dayscount_key),""));
+        requestParams.put(WeatherAPIParams.UNITS, pref.getString(getString(R.string.settings_units_key),""));
         requestParams.put(WeatherAPIParams.OUTPUT_MODE, "json");
     }
 
