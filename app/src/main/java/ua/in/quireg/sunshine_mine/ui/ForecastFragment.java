@@ -1,11 +1,13 @@
-package ua.in.quireg.sunshine_mine;
+package ua.in.quireg.sunshine_mine.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringDef;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,7 +29,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static android.content.Context.MODE_PRIVATE;
+import ua.in.quireg.sunshine_mine.core.GrabWeatherAPIData;
+import ua.in.quireg.sunshine_mine.R;
+import ua.in.quireg.sunshine_mine.core.WeatherAPIParams;
+import ua.in.quireg.sunshine_mine.core.WeatherDataParser;
 
 /**
  * Created by Artur Menchenko on 10/3/2016.
@@ -53,11 +58,11 @@ public class ForecastFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
-        System.out.println(item.getItemId());
         switch (item.getItemId()) {
 
             case R.id.action_refresh:
                 RetrieveWeatherInBackground task = new RetrieveWeatherInBackground();
+                initializeWeatherParameters();
                 task.execute(requestParams);
                 return true;
 
@@ -102,16 +107,15 @@ public class ForecastFragment extends Fragment {
 
     private void initializeWeatherParameters(){
         //TODO get rid of this method.
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
         requestParams = new HashMap<>();
 
         //get location from params
-
-
-        requestParams.put("cityID", "703448");
-        requestParams.put("cityPostCode", "01032");
-        requestParams.put("numberOfDays", "15");
-        requestParams.put("units", "metric");
-        requestParams.put("mode", "json");
+        requestParams.put(WeatherAPIParams.CITY_ID, pref.getString(getString(R.string.settings_location_key),""));
+        requestParams.put(WeatherAPIParams.ZIP_CODE, "01032");
+        requestParams.put(WeatherAPIParams.DAYS_COUNT, "14");
+        requestParams.put(WeatherAPIParams.UNITS, "metric");
+        requestParams.put(WeatherAPIParams.OUTPUT_MODE, "json");
     }
 
     private class RetrieveWeatherInBackground extends AsyncTask<Map<String, String>, Void, String[]> {
@@ -130,7 +134,11 @@ public class ForecastFragment extends Fragment {
             try {
                 String JSONData = GrabWeatherAPIData.grabData(params[0]);
                 WeatherDataParser wdp = new WeatherDataParser();
-                return wdp.getWeatherDataFromJson(JSONData);
+                String[] result = wdp.getWeatherDataFromJson(JSONData);
+                if(result != null){
+                    return result;
+                }
+                return new String[]{"No Data Received"};
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {

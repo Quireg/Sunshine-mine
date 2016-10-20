@@ -1,8 +1,10 @@
-package ua.in.quireg.sunshine_mine;
+package ua.in.quireg.sunshine_mine.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+
+import ua.in.quireg.sunshine_mine.R;
 
 
 public class MainActivity extends AppCompatActivity {

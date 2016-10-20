@@ -1,11 +1,11 @@
-package ua.in.quireg.sunshine_mine;
+package ua.in.quireg.sunshine_mine.core;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,7 +13,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
 
-import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by Artur Menchenko on 9/29/2016.
@@ -23,47 +22,42 @@ public final class GrabWeatherAPIData {
 
     private static final String APIkey = "a3e3e85f9b157042fe69042cdefee044";
     private static final String LOG_TAG = GrabWeatherAPIData.class.getSimpleName();
-    private static String forecastJsonStrOld;
     private static final String PREF_FILE_NAME = "pref_general.xml";
 
+    private static String forecastJsonStrOld;
     private static SharedPreferences preferences ;
 
     //URIBuilder is unsafe for concurrency so it`s better to make whole method synchronized.
-    static synchronized String grabData(Map<String, String> param) throws IOException {
+    public static synchronized String grabData(Map<String, String> param) throws IOException {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
-        preferences =  getContext().getSharedPreferences(PREF_FILE_NAME, MODE_PRIVATE);
 
-        // Construct the URL for the OpenWeatherMap query
-        // Possible parameters are available at OWM's forecast API page, at
-        // http://openweathermap.org/API#forecast
+        Uri.Builder uriRequest = new Uri.Builder()
+                .scheme("http")
+                .authority("api.openweathermap.org")
+                .appendPath("data")
+                .appendPath("2.5")
+                .appendPath("forecast")
+                .appendPath("daily");
 
-        Uri.Builder uriRequest = new Uri.Builder();
-        uriRequest.scheme("http");
-        uriRequest.authority("api.openweathermap.org");
-        uriRequest.appendPath("data");
-        uriRequest.appendPath("2.5");
-        uriRequest.appendPath("forecast");
-        uriRequest.appendPath("daily");
-        if (param.get("cityID") != null) {
-            uriRequest.appendQueryParameter("id", param.get("cityID"));
-        }
-        else if(param.get("cityPostCode") !=null && param.get("cityID") == null){
-            uriRequest.appendQueryParameter("zip", param.get("cityPostCode"));
+        if (param.get("id") != null) {
+            uriRequest.appendQueryParameter("id", param.get("id"));
+        }else if(param.get("zip") !=null && param.get("id") == null){
+            uriRequest.appendQueryParameter("zip", param.get("zip"));
         }else{
             throw new IOException();
         }
 
-        uriRequest.appendQueryParameter("mode", param.get("mode"));
-        uriRequest.appendQueryParameter("cnt", param.get("numberOfDays"));
-        uriRequest.appendQueryParameter("units", param.get("units"));
+        uriRequest.appendQueryParameter("mode", param.get("mode"))
+                .appendQueryParameter("cnt", param.get("cnt"))
+                .appendQueryParameter("units", param.get("units"));
+
         uriRequest.appendQueryParameter("APPID", APIkey);
 
         String forecastJsonStr = null;
         try {
             Log.d("GrabWeatherAPIData", "Attempting to fetch:" + uriRequest.toString());
-
 
             URL url = new URL(uriRequest.toString());
 
@@ -98,6 +92,10 @@ public final class GrabWeatherAPIData {
             forecastJsonStr = buffer.toString();
             Log.d(LOG_TAG, "Forecast JSON string:" + forecastJsonStr);
             forecastJsonStrOld = forecastJsonStr;
+        } catch(FileNotFoundException e){
+            Log.d(LOG_TAG, "Received Error from API");
+            e.printStackTrace();
+            return forecastJsonStr;
         } catch (IOException e) {
             Log.e("GrabWeatherAPIData", "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attempting

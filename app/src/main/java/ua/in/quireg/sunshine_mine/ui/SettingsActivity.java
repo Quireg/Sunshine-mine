@@ -1,17 +1,17 @@
-package ua.in.quireg.sunshine_mine;
+package ua.in.quireg.sunshine_mine.ui;
 
 /**
  * Created by Artur Menchenko on 10/15/2016.
  */
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.KeyEvent;
+
+import ua.in.quireg.sunshine_mine.R;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings.

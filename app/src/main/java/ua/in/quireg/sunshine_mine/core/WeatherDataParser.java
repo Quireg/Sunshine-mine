@@ -1,7 +1,6 @@
-package ua.in.quireg.sunshine_mine;
+package ua.in.quireg.sunshine_mine.core;
 
 import android.text.format.Time;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,7 +9,7 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 
 
-final class WeatherDataParser {
+public final class WeatherDataParser {
     private final String LOG_TAG = WeatherDataParser.class.getSimpleName();
 
     /* The date/time conversion code is going to be moved outside the asynctask later,
@@ -42,7 +41,7 @@ final class WeatherDataParser {
      * Fortunately parsing is easy:  constructor takes the JSON string and converts it
      * into an Object hierarchy for us.
      */
-    String[] getWeatherDataFromJson(String forecastJsonStr)
+     public String[] getWeatherDataFromJson(String forecastJsonStr)
             throws JSONException {
 
         // These are the names of the JSON objects that need to be extracted.
@@ -52,7 +51,9 @@ final class WeatherDataParser {
         final String OWM_MAX = "max";
         final String OWM_MIN = "min";
         final String OWM_DESCRIPTION = "main";
-
+        if(forecastJsonStr == null){
+            return null;
+        }
         JSONObject forecastJson = new JSONObject(forecastJsonStr);
         JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
 
