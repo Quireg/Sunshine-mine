@@ -6,6 +6,7 @@
     <string name="title_activity_detail">DetailActivity</string>
     <string name="title_activity_settings">Settings</string>
     <string name="action_settings">Settings</string>
+    <string name="show_on_map">Show Map</string>
     <string name="settings_location_tag">Location</string>
     <string name="settings_location_key" translatable="false">location</string>
     <string name="settings_location_def_value" translatable="false">703448</string>

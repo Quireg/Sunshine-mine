@@ -18,11 +18,10 @@
         />
     <ListPreference
         android:title="@string/settings_units_tag"
-        android:summary="Select your favourite"
         android:key="@string/settings_units_key"
         android:entries="@array/units"
         android:entryValues="@array/units_data"
-        android:defaultValue="metric"
+        android:defaultValue="1"
         />
 
 

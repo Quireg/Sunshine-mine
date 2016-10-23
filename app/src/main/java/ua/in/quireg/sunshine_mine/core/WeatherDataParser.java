@@ -1,5 +1,7 @@
 package ua.in.quireg.sunshine_mine.core;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.format.Time;
 
 import org.json.JSONArray;
@@ -7,6 +9,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+
+import ua.in.quireg.sunshine_mine.ui.ForecastListFragment;
 
 
 public final class WeatherDataParser {
@@ -41,7 +46,7 @@ public final class WeatherDataParser {
      * Fortunately parsing is easy:  constructor takes the JSON string and converts it
      * into an Object hierarchy for us.
      */
-     public String[] getWeatherDataFromJson(String forecastJsonStr)
+     public String[] getWeatherDataFromJson(String forecastJsonStr, boolean metric)
             throws JSONException {
 
         // These are the names of the JSON objects that need to be extracted.
@@ -57,7 +62,16 @@ public final class WeatherDataParser {
         JSONObject forecastJson = new JSONObject(forecastJsonStr);
         JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
 
-        // OWM returns daily forecasts based upon the local time of the city that is being
+        // We will also parse coordinates from JSON and place it to settings.
+         JSONObject city = forecastJson.getJSONObject("city");
+         JSONObject cityCoord = city.getJSONObject("coord");
+
+         ForecastListFragment.coordinates.put("lon", (Double)cityCoord.get("lon"));
+         ForecastListFragment.coordinates.put("lat", (Double)cityCoord.get("lat"));
+
+
+
+         // OWM returns daily forecasts based upon the local time of the city that is being
         // asked for, which means that we need to know the GMT offset to translate this data
         // properly.
 
@@ -96,11 +110,15 @@ public final class WeatherDataParser {
             JSONObject weatherObject = dayForecast.getJSONArray(OWM_WEATHER).getJSONObject(0);
             description = weatherObject.getString(OWM_DESCRIPTION);
 
+
+
             // Temperatures are in a child object called "temp".  Try not to name variables
             // "temp" when working with temperature.  It confuses everybody.
             JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
-            double high = temperatureObject.getDouble(OWM_MAX);
-            double low = temperatureObject.getDouble(OWM_MIN);
+
+            //Data is always parsed in metric units, for Fahrenheit we should manually convert it
+            double high = (metric ? temperatureObject.getDouble(OWM_MAX) : ((temperatureObject.getDouble(OWM_MAX) * 1.8) + 32));
+            double low = (metric ? temperatureObject.getDouble(OWM_MIN) : ((temperatureObject.getDouble(OWM_MAX) * 1.8) + 32));
 
             highAndLow = formatHighLows(high, low);
             resultStrs[i] = day + " - " + description + " - " + highAndLow;

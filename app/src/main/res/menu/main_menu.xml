@@ -7,7 +7,9 @@
     <item android:id="@+id/action_refresh"
         app:showAsAction="never"
         android:title="@string/action_refresh"/>
-
+    <item android:id="@+id/action_show_on_map"
+        app:showAsAction="never"
+        android:title="@string/show_on_map"/>
     <item android:id="@+id/main_settings"
         app:showAsAction="never"
         android:title="@string/main_settings"/>
@@ -15,4 +17,6 @@
     <item android:id="@+id/exit_action"
         app:showAsAction="never"
         android:title="@string/exit"/>
+
+
 </menu>
