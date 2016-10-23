@@ -1,13 +1,11 @@
 package ua.in.quireg.sunshine_mine.ui;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringDef;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -38,7 +36,7 @@ import ua.in.quireg.sunshine_mine.core.WeatherDataParser;
  * Created by Artur Menchenko on 10/3/2016.
  */
 
-public class ForecastFragment extends Fragment {
+public class ForecastListFragment extends Fragment {
 
     private Map<String, String> requestParams;
     private ArrayAdapter<String> arrayAdapter;
@@ -82,7 +80,7 @@ public class ForecastFragment extends Fragment {
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        View rootView = inflater.inflate(R.layout.forecast_list_fragment, container, false);
         ListView lv = (ListView) rootView.findViewById(R.id.listview_forecast);
         arrayAdapter = new ArrayAdapter<String>(getActivity(),
                 R.layout.list_item_forecast,
