@@ -38,7 +38,7 @@ import ua.in.quireg.sunshine_mine.core.WeatherDataParser;
  * Created by Artur Menchenko on 10/3/2016.
  */
 
-public class ForecastListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
+public class ForecastListFragment extends Fragment{
 
     private static final String LOG_TAG = ForecastListFragment.class.getSimpleName();
 
@@ -102,6 +102,14 @@ public class ForecastListFragment extends Fragment implements SwipeRefreshLayout
 
             }
         });
+        SwipeRefreshLayout srl = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_forecast_list);
+        srl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Log.d(LOG_TAG, "onRefresh called from SwipeRefreshLayout");
+                refreshForecast();
+            }
+        });
 
         return rootView;
     }
@@ -119,11 +127,7 @@ public class ForecastListFragment extends Fragment implements SwipeRefreshLayout
         requestParams.put(WeatherAPIParams.OUTPUT_MODE, "json");
     }
 
-    @Override
-    public void onRefresh() {
-        Log.d(LOG_TAG, "onRefresh called from SwipeRefreshLayout");
-        refreshForecast();
-    }
+
 
     private class RetrieveWeatherInBackground extends AsyncTask<Map<String, String>, Void, String[]> {
         @Override
@@ -160,5 +164,6 @@ public class ForecastListFragment extends Fragment implements SwipeRefreshLayout
         initializeWeatherParameters();
         task.execute(requestParams);
     }
+
 
 }
