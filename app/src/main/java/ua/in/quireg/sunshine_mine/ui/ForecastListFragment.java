@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,10 +38,13 @@ import ua.in.quireg.sunshine_mine.core.WeatherDataParser;
  * Created by Artur Menchenko on 10/3/2016.
  */
 
-public class ForecastListFragment extends Fragment {
+public class ForecastListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
+
+    private static final String LOG_TAG = ForecastListFragment.class.getSimpleName();
 
     private Map<String, String> requestParams;
     private ArrayAdapter<String> arrayAdapter;
+    SharedPreferences pref;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,9 +64,7 @@ public class ForecastListFragment extends Fragment {
         switch (item.getItemId()) {
 
             case R.id.action_refresh:
-                RetrieveWeatherInBackground task = new RetrieveWeatherInBackground();
-                initializeWeatherParameters();
-                task.execute(requestParams);
+                refreshForecast();
                 return true;
 
             case R.id.exit_action:
@@ -105,7 +108,7 @@ public class ForecastListFragment extends Fragment {
 
     private void initializeWeatherParameters(){
         //TODO get rid of this method.
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
         requestParams = new HashMap<>();
 
         //get location from params
@@ -114,6 +117,12 @@ public class ForecastListFragment extends Fragment {
         requestParams.put(WeatherAPIParams.DAYS_COUNT, pref.getString(getString(R.string.settings_dayscount_key),""));
         requestParams.put(WeatherAPIParams.UNITS, pref.getString(getString(R.string.settings_units_key),""));
         requestParams.put(WeatherAPIParams.OUTPUT_MODE, "json");
+    }
+
+    @Override
+    public void onRefresh() {
+        Log.d(LOG_TAG, "onRefresh called from SwipeRefreshLayout");
+        refreshForecast();
     }
 
     private class RetrieveWeatherInBackground extends AsyncTask<Map<String, String>, Void, String[]> {
@@ -144,6 +153,12 @@ public class ForecastListFragment extends Fragment {
             }
             return null;
         }
+    }
+
+    private void refreshForecast(){
+        RetrieveWeatherInBackground task = new RetrieveWeatherInBackground();
+        initializeWeatherParameters();
+        task.execute(requestParams);
     }
 
 }
