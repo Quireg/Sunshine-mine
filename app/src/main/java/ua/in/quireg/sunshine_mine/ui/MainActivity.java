@@ -6,16 +6,13 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
-import android.view.View;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 
 import org.json.JSONException;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -80,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
 
     //callback to retrieve new data and propagate it to array adapter
     public void refreshForecast(){
+        Log.d(LOG_TAG, "Refresh Forecast invoked!");
+
         RetrieveWeatherInBackground task = new RetrieveWeatherInBackground();
         initializeWeatherParameters();
         task.execute(requestParams);

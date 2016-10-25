@@ -134,7 +134,7 @@ public class ForecastListFragment extends Fragment{
 
 
     public void refreshColmpleted(){
-        srl.setRefreshing(false);
+        if(srl != null) srl.setRefreshing(false);
     }
 
 
