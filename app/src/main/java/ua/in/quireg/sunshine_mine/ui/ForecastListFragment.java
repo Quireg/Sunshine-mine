@@ -40,20 +40,22 @@ import ua.in.quireg.sunshine_mine.core.WeatherDataParser;
  */
 
 public class ForecastListFragment extends Fragment{
-
+    //log tag
     private static final String LOG_TAG = ForecastListFragment.class.getSimpleName();
 
-    public static HashMap<String, Double> coordinates = new HashMap<>();
+    //retrieve arguments passed from activity
+    Bundle args = getArguments();
 
-    private Map<String, String> requestParams;
-    private ArrayAdapter<String> arrayAdapter;
-    private String[] forecast = {"Nothing to see here"};
+    private String[] forecast;
+
     SharedPreferences pref;
     SwipeRefreshLayout srl;
 
     @Override
     public void onStart() {
-        if(forecast.length <= 1) refreshForecast();
+        if(forecast == null) {
+            refreshRequested();
+        }
         super.onStart();
     }
 
@@ -68,40 +70,14 @@ public class ForecastListFragment extends Fragment{
         inflater.inflate(R.menu.main_menu, menu);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-
-            case R.id.action_refresh:
-                refreshForecast();
-                return true;
-
-            case R.id.exit_action:
-                System.exit(0);
-                return true;
-
-            case R.id.main_settings:
-                Intent intent = new Intent(getContext(), SettingsActivity.class);
-                startActivity(intent);
-                return true;
-
-            case R.id.action_show_on_map:
-                showPrefLocOnMap();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.forecast_list_fragment, container, false);
         ListView lv = (ListView) rootView.findViewById(R.id.listview_forecast);
-        arrayAdapter = new ArrayAdapter<>(getActivity(),
-                R.layout.list_item_forecast,
-                new ArrayList<>(Arrays.asList(forecast)));
-        lv.setAdapter(arrayAdapter);
+
+        lv.setAdapter(((MainActivity)getActivity()).getArrayAdapter());
+
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -120,72 +96,47 @@ public class ForecastListFragment extends Fragment{
             @Override
             public void onRefresh() {
                 Log.d(LOG_TAG, "onRefresh called from SwipeRefreshLayout");
-                refreshForecast();
+                refreshRequested();
 
             }
         });
 
         return rootView;
     }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
 
-    private void initializeWeatherParameters(){
-        //TODO get rid of this method.
-        pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        requestParams = new HashMap<>();
+            case R.id.action_refresh:
+                refreshRequested();
+                return true;
 
-        //get location from params
-        requestParams.put(WeatherAPIParams.CITY_ID, pref.getString(getString(R.string.settings_location_key),""));
-        requestParams.put(WeatherAPIParams.ZIP_CODE, "01032");
-        requestParams.put(WeatherAPIParams.DAYS_COUNT, pref.getString(getString(R.string.settings_dayscount_key),""));
-        requestParams.put(WeatherAPIParams.UNITS, "metric");
-        requestParams.put(WeatherAPIParams.OUTPUT_MODE, "json");
-    }
-    private void refreshForecast(){
-        RetrieveWeatherInBackground task = new RetrieveWeatherInBackground();
-        initializeWeatherParameters();
-        task.execute(requestParams);
-    }
+            case R.id.exit_action:
+                System.exit(0);
+                return true;
 
-    private void showPrefLocOnMap(){
-        Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
-                Uri.parse("geo:0,0?q="+ coordinates.get("lat") + "," + coordinates.get("lon") + " (" + "Preferred City" + ")"));
-        startActivity(intent);
-    }
+            case R.id.main_settings:
+                Intent intent = new Intent(getContext(), SettingsActivity.class);
+                startActivity(intent);
+                return true;
 
-    private class RetrieveWeatherInBackground extends AsyncTask<Map<String, String>, Void, String[]> {
-        @Override
-        protected String[] doInBackground(Map<String, String>... params) {
-            try {
-                String JSONData = GrabWeatherAPIData.grabData(params[0]);
-                WeatherDataParser wdp = new WeatherDataParser();
-                boolean isMetricBool = (pref.getString(getString(R.string.settings_units_key), "metric").equalsIgnoreCase("metric"));
-                String[] result = wdp.getWeatherDataFromJson(JSONData, isMetricBool);
-                if(result != null){
-                    forecast = result;
-                    return result;
-                }
-                return new String[]{"No Data Received"};
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return null;
+            case R.id.action_show_on_map:
+                ((MainActivity)getActivity()).showPrefLocOnMap();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        @Override
-        protected void onPostExecute(String[] strings) {
-            //Update ListView adapter
-            List<String> arrayListOfData = new ArrayList<>(Arrays.asList(strings));
-            arrayAdapter.clear();
-            for (int i = 0; i < arrayListOfData.size(); i++) {
-                arrayAdapter.insert(arrayListOfData.get(i), i);
-            }
-            arrayAdapter.notifyDataSetChanged();
-
-            //Remove process indicator.
-            if (srl != null) srl.setRefreshing(false);
-        }
-
     }
+    private void refreshRequested(){
+        ((MainActivity)getActivity()).refreshForecast();
+    }
+
+
+    public void refreshColmpleted(){
+        srl.setRefreshing(false);
+    }
+
+
 
 }

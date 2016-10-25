@@ -11,7 +11,7 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
-import ua.in.quireg.sunshine_mine.ui.ForecastListFragment;
+import ua.in.quireg.sunshine_mine.ui.MainActivity;
 
 
 public final class WeatherDataParser {
@@ -66,8 +66,8 @@ public final class WeatherDataParser {
          JSONObject city = forecastJson.getJSONObject("city");
          JSONObject cityCoord = city.getJSONObject("coord");
 
-         ForecastListFragment.coordinates.put("lon", (Double)cityCoord.get("lon"));
-         ForecastListFragment.coordinates.put("lat", (Double)cityCoord.get("lat"));
+         MainActivity.coordinates.put("lon", (Double)cityCoord.get("lon"));
+         MainActivity.coordinates.put("lat", (Double)cityCoord.get("lat"));
 
 
 

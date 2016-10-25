@@ -21,7 +21,7 @@
         android:key="@string/settings_units_key"
         android:entries="@array/units"
         android:entryValues="@array/units_data"
-        android:defaultValue="1"
+        android:defaultValue="metric"
         />
 
 
