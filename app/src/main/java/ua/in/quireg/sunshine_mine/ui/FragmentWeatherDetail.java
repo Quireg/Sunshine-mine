@@ -14,11 +14,11 @@ import ua.in.quireg.sunshine_mine.R;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class DetailActivityFragment extends Fragment {
+public class FragmentWeatherDetail extends Fragment {
 
-    private final static String LOG_TAG = DetailActivityFragment.class.getSimpleName();
+    private final static String LOG_TAG = FragmentWeatherDetail.class.getSimpleName();
 
-    public DetailActivityFragment() {
+    public FragmentWeatherDetail() {
     }
 
     @Override
@@ -31,7 +31,7 @@ public class DetailActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_detail, container, false);
+        View view = inflater.inflate(R.layout.fragment_weather_detail, container, false);
         TextView tv = (TextView) view.findViewById(R.id.detailFragmentMainTextView);
         if (tv != null) {
             tv.setText(getActivity().getIntent().getStringExtra("weather"));

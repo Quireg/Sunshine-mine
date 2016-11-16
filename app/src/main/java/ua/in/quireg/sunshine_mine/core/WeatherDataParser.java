@@ -1,7 +1,5 @@
 package ua.in.quireg.sunshine_mine.core;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.text.format.Time;
 
 import org.json.JSONArray;
@@ -9,9 +7,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 
-import ua.in.quireg.sunshine_mine.ui.MainActivity;
+import ua.in.quireg.sunshine_mine.ui.ActivityMain;
 
 
 public final class WeatherDataParser {
@@ -66,8 +63,8 @@ public final class WeatherDataParser {
          JSONObject city = forecastJson.getJSONObject("city");
          JSONObject cityCoord = city.getJSONObject("coord");
 
-         MainActivity.coordinates.put("lon", (Double)cityCoord.get("lon"));
-         MainActivity.coordinates.put("lat", (Double)cityCoord.get("lat"));
+         ActivityMain.coordinates.put("lon", (Double)cityCoord.get("lon"));
+         ActivityMain.coordinates.put("lat", (Double)cityCoord.get("lat"));
 
 
 

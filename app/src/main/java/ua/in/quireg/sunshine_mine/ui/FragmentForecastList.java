@@ -2,10 +2,7 @@ package ua.in.quireg.sunshine_mine.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,31 +14,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import org.json.JSONException;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import ua.in.quireg.sunshine_mine.core.GrabWeatherAPIData;
 import ua.in.quireg.sunshine_mine.R;
-import ua.in.quireg.sunshine_mine.core.WeatherAPIParams;
-import ua.in.quireg.sunshine_mine.core.WeatherDataParser;
 
 /**
  * Created by Artur Menchenko on 10/3/2016.
  */
 
-public class ForecastListFragment extends Fragment{
+public class FragmentForecastList extends Fragment{
     //log tag
-    private static final String LOG_TAG = ForecastListFragment.class.getSimpleName();
+    private static final String LOG_TAG = FragmentForecastList.class.getSimpleName();
 
     //retrieve arguments passed from activity
     Bundle args = getArguments();
@@ -73,10 +57,10 @@ public class ForecastListFragment extends Fragment{
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.forecast_list_fragment, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_forecast_list, container, false);
         ListView lv = (ListView) rootView.findViewById(R.id.listview_forecast);
 
-        lv.setAdapter(((MainActivity)getActivity()).getArrayAdapter());
+        lv.setAdapter(((ActivityMain)getActivity()).getArrayAdapter());
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -85,7 +69,7 @@ public class ForecastListFragment extends Fragment{
                 Toast toast = Toast.makeText(getContext(), parent.getItemAtPosition(position).toString(), Toast.LENGTH_SHORT);
                 toast.show();
 
-                Intent newIntent = new Intent(getContext(), DetailActivity.class);
+                Intent newIntent = new Intent(getContext(), ActivityWeatherDetail.class);
                 newIntent.putExtra("weather", parent.getItemAtPosition(position).toString());
                 startActivity(newIntent);
 
@@ -117,19 +101,19 @@ public class ForecastListFragment extends Fragment{
                 return true;
 
             case R.id.main_settings:
-                Intent intent = new Intent(getContext(), SettingsActivity.class);
+                Intent intent = new Intent(getContext(), ActivitySettings.class);
                 startActivity(intent);
                 return true;
 
             case R.id.action_show_on_map:
-                ((MainActivity)getActivity()).showPrefLocOnMap();
+                ((ActivityMain)getActivity()).showPrefLocOnMap();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
     private void refreshRequested(){
-        ((MainActivity)getActivity()).refreshForecast();
+        ((ActivityMain)getActivity()).refreshForecast();
     }
 
 

@@ -4,14 +4,16 @@ package ua.in.quireg.sunshine_mine.ui;
  * Created by Artur Menchenko on 10/15/2016.
  */
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.Menu;
-import android.view.View;
 
 import ua.in.quireg.sunshine_mine.R;
 
@@ -23,9 +25,9 @@ import ua.in.quireg.sunshine_mine.R;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class SettingsActivity extends PreferenceActivity
-        implements Preference.OnPreferenceChangeListener {
-    private static final String LOG_TAG = SettingsActivity.class.getSimpleName();
+public class ActivitySettings extends PreferenceActivity
+        implements Preference.OnPreferenceChangeListener, FragmentLocationSettings.OnFragmentInteractionListener{
+    private static final String LOG_TAG = ActivitySettings.class.getSimpleName();
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -38,8 +40,9 @@ public class SettingsActivity extends PreferenceActivity
     public void onCreate(Bundle savedInstanceState) {
         Log.d(LOG_TAG, "Settings launched");
         super.onCreate(savedInstanceState);
-
+        Log.d(LOG_TAG, "started");
         addPreferencesFromResource(R.xml.pref_general);
+
 
         // For all preferences, attach an OnPreferenceChangeListener so the UI summary can be
         // updated when the preference changes.
@@ -69,6 +72,16 @@ public class SettingsActivity extends PreferenceActivity
     public boolean onPreferenceChange(Preference preference, Object value) {
         String stringValue = value.toString();
 
+        if (preference.getKey().equals("location")){
+            getFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.settings_container, new FragmentLocationSettings())
+                    .addToBackStack("setting")
+                    .commit();
+
+            return true;
+        }
+
         if (preference instanceof ListPreference) {
             // For list preferences, look up the correct display value in
             // the preference's 'entries' list (since they have separate labels/values).
@@ -85,4 +98,8 @@ public class SettingsActivity extends PreferenceActivity
         return true;
     }
 
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
 }

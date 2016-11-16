@@ -12,9 +12,9 @@ import android.content.Intent;
 
 import ua.in.quireg.sunshine_mine.R;
 
-public class DetailActivity extends AppCompatActivity {
+public class ActivityWeatherDetail extends AppCompatActivity {
 
-    private final static String LOG_TAG = DetailActivity.class.getSimpleName();
+    private final static String LOG_TAG = ActivityWeatherDetail.class.getSimpleName();
 
     private ShareActionProvider mShareActionProvider;
 
@@ -23,11 +23,11 @@ public class DetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(LOG_TAG, "Activity started");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detail);
-        //Obtain intent and propagate it`s parameters to DetailActivityFragment
+        setContentView(R.layout.activity_weather_detail);
+        //Obtain intent and propagate it`s parameters to FragmentWeatherDetail
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container , new DetailActivityFragment())
+                    .add(R.id.container , new FragmentWeatherDetail())
                     .commit();
         }
     }
@@ -61,7 +61,7 @@ public class DetailActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            Intent intent = new Intent(getApplicationContext(),SettingsActivity.class);
+            Intent intent = new Intent(getApplicationContext(),ActivitySettings.class);
             startActivity(intent);
             return true;
         }

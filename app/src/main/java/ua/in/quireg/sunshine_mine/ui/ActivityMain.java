@@ -25,9 +25,9 @@ import ua.in.quireg.sunshine_mine.core.WeatherAPIParams;
 import ua.in.quireg.sunshine_mine.core.WeatherDataParser;
 
 
-public class MainActivity extends AppCompatActivity {
+public class ActivityMain extends AppCompatActivity {
 
-    private static final String LOG_TAG = MainActivity.class.getSimpleName();
+    private static final String LOG_TAG = ActivityMain.class.getSimpleName();
 
     private Map<String, String> requestParams;
 
@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String[] forecast = {"Nothing to see here"};
     SharedPreferences pref;
-    ForecastListFragment flf;
+    FragmentForecastList flf;
     ArrayAdapter<String> arrayAdapter;
 
     @Override
@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         arrayAdapter = new ArrayAdapter<>(getApplicationContext(),
-                R.layout.list_item_forecast,
+                R.layout.fragment_forecast_list_item,
                 new ArrayList<>(Arrays.asList(forecast))
         );
 
@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         Bundle args = new Bundle();
         //args.putSerializable("arrayAdapter", (Serializable) arrayAdapter);
 
-        flf = new ForecastListFragment();
+        flf = new FragmentForecastList();
         flf.setArguments(args);
 
         if (savedInstanceState == null){
