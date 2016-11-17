@@ -15,13 +15,25 @@
  */
 package ua.in.quireg.sunshine_mine.data;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.format.Time;
+
+import java.net.URI;
 
 /**
  * Defines table and column names for the weather database.
  */
 public class WeatherContract {
+
+    public static final String CONTENT_AUTHORITY = "ua.in.quireg.sunshine_mine.app";
+
+    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+
+    public static final String PATH_WEATHER = "weather";
+    public static final String PATH_LOCATION = "location";
 
     // To make it easy to query for the exact date, we normalize all dates that go into
     // the database to the start of the the Julian day at UTC.
@@ -40,12 +52,24 @@ public class WeatherContract {
      */
     public static final class LocationEntry implements BaseColumns {
 
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_LOCATION).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_LOCATION;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_LOCATION;
+
         public static final String _ID = "id";
         public static final String TABLE_NAME = "location";
         public static final String COLUMN_CITY_NAME = "city_name";
         public static final String COLUMN_CITY_LAT = "lat";
         public static final String COLUMN_CITY_LON = "lon";
         public static final String COLUMN_LOC_COUNTRYCODE = "countryCode";
+
+        public static Uri buildLocationUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
 
     }
 
@@ -80,5 +104,8 @@ public class WeatherContract {
 
         // Degrees are meteorological degrees (e.g, 0 is north, 180 is south).  Stored as floats.
         public static final String COLUMN_DEGREES = "degrees";
+
+        //public static Uri buildWeather
+
     }
 }

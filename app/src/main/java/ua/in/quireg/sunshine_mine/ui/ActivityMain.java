@@ -2,6 +2,7 @@ package ua.in.quireg.sunshine_mine.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import ua.in.quireg.sunshine_mine.R;
 import ua.in.quireg.sunshine_mine.core.GrabWeatherAPIData;
 import ua.in.quireg.sunshine_mine.core.WeatherAPIParams;
 import ua.in.quireg.sunshine_mine.core.WeatherDataParser;
+import ua.in.quireg.sunshine_mine.data.WeatherDbHelper;
 
 
 public class ActivityMain extends AppCompatActivity {
@@ -46,6 +48,9 @@ public class ActivityMain extends AppCompatActivity {
                 R.layout.fragment_forecast_list_item,
                 new ArrayList<>(Arrays.asList(forecast))
         );
+
+        SQLiteDatabase db = new WeatherDbHelper(
+                getApplicationContext()).getWritableDatabase();
 
         setContentView(R.layout.activity_main);
 

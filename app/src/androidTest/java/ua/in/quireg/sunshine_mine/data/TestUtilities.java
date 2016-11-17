@@ -1,8 +1,10 @@
 package ua.in.quireg.sunshine_mine.data;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -43,9 +45,9 @@ public class TestUtilities extends AndroidTestCase {
     /*
         Students: Use this to create some default weather values for your database tests.
      */
-    static ContentValues createWeatherValues(long locationRowId) {
+    static ContentValues createWeatherValues(long location_Id) {
         ContentValues weatherValues = new ContentValues();
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_LOC_KEY, locationRowId);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_LOC_KEY, location_Id);
         weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DATE, TEST_DATE);
         weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DEGREES, 1.1);
         weatherValues.put(WeatherContract.WeatherEntry.COLUMN_HUMIDITY, 1.2);
@@ -68,8 +70,8 @@ public class TestUtilities extends AndroidTestCase {
         ContentValues testValues = new ContentValues();
         testValues.put(WeatherContract.LocationEntry._ID, 1496747);
         testValues.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, "Novosibirsk");
-        testValues.put(WeatherContract.LocationEntry.COLUMN_CITY_LAT, 55.041111);
-        testValues.put(WeatherContract.LocationEntry.COLUMN_CITY_LON, 82.934441);
+        testValues.put(WeatherContract.LocationEntry.COLUMN_CITY_LAT, 55.0411);
+        testValues.put(WeatherContract.LocationEntry.COLUMN_CITY_LON, 82.9344);
         testValues.put(WeatherContract.LocationEntry.COLUMN_LOC_COUNTRYCODE, "RU");
         return testValues;
     }
@@ -78,20 +80,34 @@ public class TestUtilities extends AndroidTestCase {
         Students: You can uncomment this function once you have finished creating the
         LocationEntry part of the WeatherContract as well as the WeatherDbHelper.
      */
-//    static long insertNorthPoleLocationValues(Context context) {
-//        // insert our test records into the database
-//        WeatherDbHelper dbHelper = new WeatherDbHelper(context);
-//        SQLiteDatabase db = dbHelper.getWritableDatabase();
-//        ContentValues testValues = TestUtilities.createNorthPoleLocationValues();
-//
-//        long locationRowId;
-//        locationRowId = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null, testValues);
-//
-//        // Verify we got a row back.
-//        assertTrue("Error: Failure to insert North Pole Location Values", locationRowId != -1);
-//
-//        return locationRowId;
-//    }
+    static long insertNovosibirskLocationValues(Context context) {
+        // insert our test records into the database
+        WeatherDbHelper dbHelper = new WeatherDbHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues testValues = TestUtilities.createNovosibirskLocationValues();
+
+        long locationRowId;
+        locationRowId = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null, testValues);
+
+        // Verify we got a row back.
+        assertTrue("Error: Failure to insert Novosibirsk Location Values", locationRowId != -1);
+
+        return locationRowId;
+    }
+    static long insertWeatherValues(Context context) {
+        // insert our test records into the database
+        WeatherDbHelper dbHelper = new WeatherDbHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues testValues = TestUtilities.createWeatherValues(1496747); //Novosibirsk location ID
+
+        long rowId;
+        rowId = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, testValues);
+
+        // Verify we got a row back.
+        assertTrue("Error: Failure to insert Novosibirsk Weather Values", rowId != -1);
+
+        return rowId;
+    }
 
     /*
         Students: The functions we provide inside of TestProvider use this utility class to test

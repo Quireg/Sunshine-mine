@@ -62,7 +62,7 @@ public class TestDb extends AndroidTestCase {
         SQLiteDatabase db = new WeatherDbHelper(
                 this.mContext).getWritableDatabase();
         assertEquals(true, db.isOpen());
-
+        Thread.sleep(1000);
         // have we created the tables we want?
         Cursor c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
 
@@ -132,14 +132,23 @@ public class TestDb extends AndroidTestCase {
         SQLiteDatabase db = new WeatherDbHelper(
                 this.mContext).getWritableDatabase();
         assertEquals(true, db.isOpen());
-        Cursor c = db.rawQuery("SELECT count(*) FROM " + WeatherContract.LocationEntry.TABLE_NAME + ";", null);
-        assertTrue("Error: This means that we were unable to query the database for rows count",
-                c.moveToFirst());
-        assertFalse(0 == c.getCount());
 
-        c = db.rawQuery("SELECT * FROM " + WeatherContract.LocationEntry.TABLE_NAME + " WHERE id = 1496747;", null);
-        TestUtilities.validateCursor("Location table issues", c, TestUtilities.createNovosibirskLocationValues());
+        TestUtilities.insertNovosibirskLocationValues(this.mContext);
+
+        //Cursor c = db.rawQuery("SELECT * FROM " + WeatherContract.LocationEntry.TABLE_NAME + " WHERE id = 1496747;", null);
+        Cursor c1 = db.query(
+                WeatherContract.LocationEntry.TABLE_NAME,
+                null,
+                "id = ?",
+                new String[]{
+                        "1496747"
+                },
+                null,
+                null,
+                null);
+        TestUtilities.validateCursor("Location table issues", c1, TestUtilities.createNovosibirskLocationValues());
         // Finally, close the cursor and database
+        c1.close();
         db.close();
     }
 
@@ -150,6 +159,28 @@ public class TestDb extends AndroidTestCase {
         also make use of the validateCurrentRecord function from within TestUtilities.
      */
     public void testWeatherTable() {
+
+
+        SQLiteDatabase db = new WeatherDbHelper(
+                this.mContext).getWritableDatabase();
+        assertEquals(true, db.isOpen());
+
+        TestUtilities.insertWeatherValues(this.mContext);
+
+        //Cursor c = db.rawQuery("SELECT * FROM " + WeatherContract.LocationEntry.TABLE_NAME + " WHERE id = 1496747;", null);
+        Cursor c1 = db.query(
+                WeatherContract.WeatherEntry.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        TestUtilities.validateCursor("Weather table issues", c1, TestUtilities.createWeatherValues(1496747));
+        // Finally, close the cursor and database
+        c1.close();
+        db.close();
+
         // First insert the location, and then use the locationRowId to insert
         // the weather. Make sure to cover as many failure cases as you can.
 

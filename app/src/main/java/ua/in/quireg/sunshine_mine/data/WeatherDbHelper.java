@@ -38,6 +38,8 @@ import ua.in.quireg.sunshine_mine.ui.ThisApplication;
  */
 public class WeatherDbHelper extends SQLiteOpenHelper {
 
+    private static final String LOG_TAG = WeatherDbHelper.class.getSimpleName();
+
     // If you change the database schema, you must increment the database version.
     private static final int DATABASE_VERSION = 2;
 
@@ -53,6 +55,9 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + LocationEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + WeatherEntry.TABLE_NAME);
+
         final String SQL_CREATE_WEATHER_TABLE = "CREATE TABLE " + WeatherEntry.TABLE_NAME + " (" +
                 // Why AutoIncrement here, and not above?
                 // Unique keys will be auto-generated in either case.  But for weather
@@ -93,11 +98,11 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
 
         sqLiteDatabase.execSQL(SQL_CREATE_LOCATION_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_WEATHER_TABLE);
-        try {
-            importLocationData(sqLiteDatabase);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            importLocationData(sqLiteDatabase);
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override
@@ -115,11 +120,19 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
 
     private void importLocationData(SQLiteDatabase sqLiteDatabase) throws UnsupportedEncodingException {
         //InputStream in = ThisApplication.getAppContext().getResources().openRawResource(R.raw.city_list);
-        InputStream in = mContext.getResources().openRawResource(R.raw.city_list);
+        InputStream in = mContext.getResources().openRawResource(R.raw.city_list_short);
 
         BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
         String sCurrentLine;
         try {
+            SQLiteStatement stmt = sqLiteDatabase.compileStatement("INSERT INTO " + LocationEntry.TABLE_NAME + "(" +
+                    LocationEntry._ID + "," +
+                    LocationEntry.COLUMN_CITY_NAME + "," +
+                    LocationEntry.COLUMN_CITY_LAT + "," +
+                    LocationEntry.COLUMN_CITY_LON + "," +
+                    LocationEntry.COLUMN_LOC_COUNTRYCODE + ")" +
+                    " VALUES (?,?,?,?,?);");
+
             while ((sCurrentLine = br.readLine()) != null){
                 String[] data = sCurrentLine.split("\t");
                 sqLiteDatabase.beginTransaction();
@@ -127,36 +140,16 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
                 if(data.length != 5 ){
                     continue;
                 }
-
-                SQLiteStatement stmt = sqLiteDatabase.compileStatement("INSERT INTO " + LocationEntry.TABLE_NAME + "(" +
-                        LocationEntry._ID + "," +
-                        LocationEntry.COLUMN_CITY_NAME + "," +
-                        LocationEntry.COLUMN_CITY_LAT + "," +
-                        LocationEntry.COLUMN_CITY_LON + "," +
-                        LocationEntry.COLUMN_LOC_COUNTRYCODE + ")" +
-                        " VALUES (?,?,?,?,?);");
+                stmt.clearBindings();
                 stmt.bindLong(1, Long.parseLong(data[0]));
                 stmt.bindString(2, data[1]);
                 stmt.bindDouble(3, Double.parseDouble(data[2]));
                 stmt.bindDouble(4, Double.parseDouble(data[3]));
                 stmt.bindString(5, data[4]);
 
-//                String sqlQuery = "INSERT INTO " + LocationEntry.TABLE_NAME + "(" +
-//                        LocationEntry._ID + "," +
-//                        LocationEntry.COLUMN_CITY_NAME + "," +
-//                        LocationEntry.COLUMN_CITY_LAT + "," +
-//                        LocationEntry.COLUMN_CITY_LON + "," +
-//                        LocationEntry.COLUMN_LOC_COUNTRYCODE + ")" +
-//                        " VALUES (" +
-//                        data[0] + "," +
-//                        data[1] + "," +
-//                        data[2] + "," +
-//                        data[3] + "," +
-//                        data[4] + "," +
-//                        ");";
-//                Log.d("DB:", sqlQuery);
-//                System.out.println(sqlQuery);
-                stmt.execute();
+                long result = stmt.executeInsert();
+
+                Log.d(LOG_TAG, stmt.toString() + " Row id: " +result);
                 sqLiteDatabase.setTransactionSuccessful();
                 sqLiteDatabase.endTransaction();
             }
@@ -164,6 +157,7 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
             e.printStackTrace();
         }finally {
             try {
+
                 if (sqLiteDatabase.inTransaction()) sqLiteDatabase.endTransaction();
                 if (br != null)br.close();
             } catch (IOException ex) {
