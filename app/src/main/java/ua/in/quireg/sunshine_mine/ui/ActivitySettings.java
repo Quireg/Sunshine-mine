@@ -11,9 +11,13 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.widget.ListView;
 
 import ua.in.quireg.sunshine_mine.R;
 
@@ -46,7 +50,6 @@ public class ActivitySettings extends PreferenceActivity
 
         // For all preferences, attach an OnPreferenceChangeListener so the UI summary can be
         // updated when the preference changes.
-        bindPreferenceSummaryToValue(findPreference(getString(R.string.settings_location_key)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.settings_dayscount_key)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.settings_units_key)));
     }
@@ -69,18 +72,26 @@ public class ActivitySettings extends PreferenceActivity
     }
 
     @Override
+    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+        if (preference == (PreferenceScreen) findPreference("location")){
+            startPreferenceFragment(FragmentLocationSettings.newInstance(), true);
+        }
+        return super.onPreferenceTreeClick(preferenceScreen, preference);
+    }
+
+    @Override
     public boolean onPreferenceChange(Preference preference, Object value) {
         String stringValue = value.toString();
 
-        if (preference.getKey().equals("location")){
-            getFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.settings_container, new FragmentLocationSettings())
-                    .addToBackStack("setting")
-                    .commit();
-
-            return true;
-        }
+//        if (preference.getKey().equals("location")){
+//            getFragmentManager()
+//                    .beginTransaction()
+//                    .add(R.id.settings_container, new FragmentLocationSettings())
+//                    .addToBackStack("setting")
+//                    .commit();
+//
+//            return true;
+//        }
 
         if (preference instanceof ListPreference) {
             // For list preferences, look up the correct display value in

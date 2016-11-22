@@ -3,8 +3,9 @@ package ua.in.quireg.sunshine_mine.ui;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.app.ListFragment;
+
 import android.preference.PreferenceFragment;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,14 +13,6 @@ import android.view.ViewGroup;
 
 import ua.in.quireg.sunshine_mine.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link FragmentLocationSettings.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link FragmentLocationSettings#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class FragmentLocationSettings extends PreferenceFragment {
 
     private final static String LOG_TAG = FragmentLocationSettings.class.getSimpleName();
@@ -36,35 +29,29 @@ public class FragmentLocationSettings extends PreferenceFragment {
     private OnFragmentInteractionListener mListener;
 
     public FragmentLocationSettings() {
-        Log.d(LOG_TAG, "Constructor launched");
+
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment FragmentLocationSettings.
-     */
+
     // TODO: Rename and change types and number of parameters
-    public static FragmentLocationSettings newInstance(String param1, String param2) {
+    public static FragmentLocationSettings newInstance() {
         FragmentLocationSettings fragment = new FragmentLocationSettings();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "fragment onCreate");
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        getFragmentManager().beginTransaction().replace(android.R.id.content,
+                new FragmentLocationSettings()).commit();
     }
 
     @Override
