@@ -1,72 +1,64 @@
 package ua.in.quireg.sunshine_mine.ui;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
-import android.app.ListFragment;
 
 import android.preference.PreferenceFragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import ua.in.quireg.sunshine_mine.R;
+import ua.in.quireg.sunshine_mine.core.EventBusEvents;
+import ua.in.quireg.sunshine_mine.core.base_objects.Location;
 
-public class FragmentLocationSettings extends PreferenceFragment {
+public class FragmentLocationSettings extends PreferenceFragment implements TextWatcher {
 
     private final static String LOG_TAG = FragmentLocationSettings.class.getSimpleName();
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     private OnFragmentInteractionListener mListener;
-
+    private RecyclerView recyclerView;
+    private EditText editText;
     public FragmentLocationSettings() {
-
-        // Required empty public constructor
-    }
-
-
-    // TODO: Rename and change types and number of parameters
-    public static FragmentLocationSettings newInstance() {
-        FragmentLocationSettings fragment = new FragmentLocationSettings();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.d(LOG_TAG, "fragment onCreate");
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-        getFragmentManager().beginTransaction().replace(android.R.id.content,
-                new FragmentLocationSettings()).commit();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_location_settings, container, false);
+
+        View view = inflater.inflate(R.layout.fragment_location_settings, container, false);
+
+        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_settings_location);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
+        recyclerView.setAdapter(new LocationSettingsRecycleViewAdapter(mListener));
+        Log.d(LOG_TAG, recyclerView.getAdapter().toString());
+
+        editText = (EditText) view.findViewById(R.id.location_settings_search_text);
+        editText.addTextChangedListener(this);
+
+        return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
+//    // TODO: Rename method, update argument and hook method into UI event
+//    public void onButtonPressed(Uri uri) {
+//        if (mListener != null) {
+//            mListener.onFragmentInteraction(uri);
+//        }
+//    }
 
     @Override
     public void onAttach(Context context) {
@@ -85,6 +77,21 @@ public class FragmentLocationSettings extends PreferenceFragment {
         mListener = null;
     }
 
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+         EventBus.getDefault().post(new EventBusEvents.LocationTextViewUpdated(getActivity().getApplicationContext(), editText));
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -97,6 +104,6 @@ public class FragmentLocationSettings extends PreferenceFragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void onFragmentInteraction(Location loc);
     }
 }

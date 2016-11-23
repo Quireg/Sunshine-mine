@@ -29,7 +29,7 @@ public class WeatherProvider extends ContentProvider {
 
     // The URI Matcher used by this content provider.
     private static final UriMatcher sUriMatcher = buildUriMatcher();
-    private WeatherDbHelper mOpenHelper;
+    private WeatherDbHelper mOpenHelper ;
 
     static final int WEATHER = 100;
     static final int WEATHER_WITH_LOCATION = 101;

@@ -49,13 +49,9 @@ public class ActivityMain extends AppCompatActivity {
                 new ArrayList<>(Arrays.asList(forecast))
         );
 
-        SQLiteDatabase db = new WeatherDbHelper(
-                getApplicationContext()).getWritableDatabase();
-
         setContentView(R.layout.activity_main);
 
         Bundle args = new Bundle();
-        //args.putSerializable("arrayAdapter", (Serializable) arrayAdapter);
 
         flf = new FragmentForecastList();
         flf.setArguments(args);

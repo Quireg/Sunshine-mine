@@ -84,6 +84,7 @@ public class TestUtilities extends AndroidTestCase {
         // insert our test records into the database
         WeatherDbHelper dbHelper = new WeatherDbHelper(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.execSQL("DELETE FROM location WHERE id=1496747");
         ContentValues testValues = TestUtilities.createNovosibirskLocationValues();
 
         long locationRowId;

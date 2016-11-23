@@ -4,22 +4,18 @@ package ua.in.quireg.sunshine_mine.ui;
  * Created by Artur Menchenko on 10/15/2016.
  */
 
-import android.net.Uri;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
-import android.view.View;
-import android.widget.ListView;
 
 import ua.in.quireg.sunshine_mine.R;
+import ua.in.quireg.sunshine_mine.core.base_objects.Location;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings.
@@ -74,7 +70,8 @@ public class ActivitySettings extends PreferenceActivity
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
         if (preference == (PreferenceScreen) findPreference("location")){
-            startPreferenceFragment(FragmentLocationSettings.newInstance(), true);
+            Intent intent = new Intent(this, ActivityLocationSettings.class);
+            startActivity(intent);
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
@@ -110,7 +107,7 @@ public class ActivitySettings extends PreferenceActivity
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
+    public void onFragmentInteraction(Location loc) {
 
     }
 }

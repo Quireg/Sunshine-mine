@@ -13,6 +13,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
 
+import ua.in.quireg.sunshine_mine.BuildConfig;
+
 
 /**
  * Created by Artur Menchenko on 9/29/2016.
@@ -20,7 +22,7 @@ import java.util.Map;
 
 public final class GrabWeatherAPIData {
 
-    private static final String APIkey = "a3e3e85f9b157042fe69042cdefee044";
+    private static final String APIkey = BuildConfig.WEATHER_API_KEY;
     private static final String LOG_TAG = GrabWeatherAPIData.class.getSimpleName();
     private static final String PREF_FILE_NAME = "pref_general.xml";
 

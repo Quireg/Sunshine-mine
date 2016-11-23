@@ -19,6 +19,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
+import android.os.AsyncTask;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -31,7 +32,6 @@ import java.io.UnsupportedEncodingException;
 import ua.in.quireg.sunshine_mine.R;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.LocationEntry;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherEntry;
-import ua.in.quireg.sunshine_mine.ui.ThisApplication;
 
 /**
  * Manages a local database for weather data.
@@ -41,7 +41,7 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
     private static final String LOG_TAG = WeatherDbHelper.class.getSimpleName();
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     static final String DATABASE_NAME = "weather.db";
 
@@ -98,11 +98,8 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
 
         sqLiteDatabase.execSQL(SQL_CREATE_LOCATION_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_WEATHER_TABLE);
-        try {
-            importLocationData(sqLiteDatabase);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+
+        new PrepareDatabase().execute(sqLiteDatabase);
     }
 
     @Override
@@ -165,4 +162,31 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
             }
         }
     }
+
+    private class PrepareDatabase extends AsyncTask<SQLiteDatabase, Void, Void>{
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            Log.d(LOG_TAG, "Database ready");
+        }
+
+        @Override
+        protected Void doInBackground(SQLiteDatabase... params) {
+
+            try {
+                importLocationData(params[0]);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Log.d(LOG_TAG, "Database preparations started");
+        }
+    }
+
 }
