@@ -33,6 +33,6 @@ public class ActivityLocationSettings extends PreferenceActivity implements Frag
 
     @Override
     public void onFragmentInteraction(Location loc) {
-
+        finish();
     }
 }

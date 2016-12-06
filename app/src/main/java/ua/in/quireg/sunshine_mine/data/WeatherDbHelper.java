@@ -29,9 +29,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
+import ua.in.quireg.sunshine_mine.BuildConfig;
 import ua.in.quireg.sunshine_mine.R;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.LocationEntry;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherEntry;
+import ua.in.quireg.sunshine_mine.ui.ThisApplication;
 
 /**
  * Manages a local database for weather data.
@@ -41,7 +43,9 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
     private static final String LOG_TAG = WeatherDbHelper.class.getSimpleName();
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 10;
+
+    public static boolean isDatabaseReady = false;
 
     static final String DATABASE_NAME = "weather.db";
 
@@ -116,8 +120,8 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
     }
 
     private void importLocationData(SQLiteDatabase sqLiteDatabase) throws UnsupportedEncodingException {
-        //InputStream in = ThisApplication.getAppContext().getResources().openRawResource(R.raw.city_list);
-        InputStream in = mContext.getResources().openRawResource(R.raw.city_list_short);
+        InputStream in = mContext.getResources().openRawResource(R.raw.city_list);
+        //InputStream in = mContext.getResources().openRawResource(R.raw.city_list_short);
 
         BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
         String sCurrentLine;
@@ -130,25 +134,30 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
                     LocationEntry.COLUMN_LOC_COUNTRYCODE + ")" +
                     " VALUES (?,?,?,?,?);");
 
+            int i = 0;
             while ((sCurrentLine = br.readLine()) != null){
+
                 String[] data = sCurrentLine.split("\t");
-                sqLiteDatabase.beginTransaction();
 
                 if(data.length != 5 ){
                     continue;
                 }
+                i++;
+
+                sqLiteDatabase.beginTransaction();
                 stmt.clearBindings();
                 stmt.bindLong(1, Long.parseLong(data[0]));
                 stmt.bindString(2, data[1]);
                 stmt.bindDouble(3, Double.parseDouble(data[2]));
                 stmt.bindDouble(4, Double.parseDouble(data[3]));
                 stmt.bindString(5, data[4]);
-
-                long result = stmt.executeInsert();
-
-                Log.d(LOG_TAG, stmt.toString() + " Row id: " +result);
-                sqLiteDatabase.setTransactionSuccessful();
+                if(stmt.executeInsert() != -1){
+                    sqLiteDatabase.setTransactionSuccessful();
+                }
                 sqLiteDatabase.endTransaction();
+                if (i%100 == 0){
+                    Log.d(LOG_TAG, (i) + " items proceeded, current item: " + data[0] + data[1]);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -168,7 +177,8 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            Log.d(LOG_TAG, "Database ready");
+            if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Database ready");
+            isDatabaseReady = true;
         }
 
         @Override

@@ -24,7 +24,7 @@ import ua.in.quireg.sunshine_mine.R;
  */
 
 public class FragmentForecastList extends Fragment{
-    //log tag
+
     private static final String LOG_TAG = FragmentForecastList.class.getSimpleName();
 
     //retrieve arguments passed from activity

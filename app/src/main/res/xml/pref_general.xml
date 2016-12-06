@@ -6,10 +6,10 @@
     android:layout_height="match_parent">
 
     <PreferenceScreen
-        android:fragment="ua.in.quireg.sunshine_mine.ui.ActivityLocationSettings$ActivityLocationFragment"
         android:title="@string/settings_location_tag"
         android:key="@string/settings_location_key"
-        android:summary="Choose your city"/>
+        android:summary="Choose your city"
+        android:defaultValue=""/>
 
     <EditTextPreference
         android:title="@string/settings_dayscount_tag"

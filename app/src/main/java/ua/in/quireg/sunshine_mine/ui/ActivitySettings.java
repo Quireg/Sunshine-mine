@@ -37,6 +37,11 @@ public class ActivitySettings extends PreferenceActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.d(LOG_TAG, "Settings launched");
         super.onCreate(savedInstanceState);
@@ -48,6 +53,7 @@ public class ActivitySettings extends PreferenceActivity
         // updated when the preference changes.
         bindPreferenceSummaryToValue(findPreference(getString(R.string.settings_dayscount_key)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.settings_units_key)));
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.settings_location_key)));
     }
 
     /**
@@ -71,7 +77,7 @@ public class ActivitySettings extends PreferenceActivity
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
         if (preference == (PreferenceScreen) findPreference("location")){
             Intent intent = new Intent(this, ActivityLocationSettings.class);
-            startActivity(intent);
+            startActivityForResult(intent,0);
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
@@ -80,15 +86,6 @@ public class ActivitySettings extends PreferenceActivity
     public boolean onPreferenceChange(Preference preference, Object value) {
         String stringValue = value.toString();
 
-//        if (preference.getKey().equals("location")){
-//            getFragmentManager()
-//                    .beginTransaction()
-//                    .add(R.id.settings_container, new FragmentLocationSettings())
-//                    .addToBackStack("setting")
-//                    .commit();
-//
-//            return true;
-//        }
 
         if (preference instanceof ListPreference) {
             // For list preferences, look up the correct display value in

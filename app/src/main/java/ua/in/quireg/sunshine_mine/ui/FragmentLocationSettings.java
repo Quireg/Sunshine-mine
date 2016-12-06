@@ -1,6 +1,7 @@
 package ua.in.quireg.sunshine_mine.ui;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import android.preference.PreferenceFragment;
@@ -21,7 +22,7 @@ import ua.in.quireg.sunshine_mine.R;
 import ua.in.quireg.sunshine_mine.core.EventBusEvents;
 import ua.in.quireg.sunshine_mine.core.base_objects.Location;
 
-public class FragmentLocationSettings extends PreferenceFragment implements TextWatcher {
+public class FragmentLocationSettings extends PreferenceFragment implements TextWatcher{
 
     private final static String LOG_TAG = FragmentLocationSettings.class.getSimpleName();
 
@@ -29,6 +30,7 @@ public class FragmentLocationSettings extends PreferenceFragment implements Text
     private RecyclerView recyclerView;
     private EditText editText;
     public FragmentLocationSettings() {
+
     }
 
     @Override
@@ -50,15 +52,9 @@ public class FragmentLocationSettings extends PreferenceFragment implements Text
         editText = (EditText) view.findViewById(R.id.location_settings_search_text);
         editText.addTextChangedListener(this);
 
+
         return view;
     }
-
-//    // TODO: Rename method, update argument and hook method into UI event
-//    public void onButtonPressed(Uri uri) {
-//        if (mListener != null) {
-//            mListener.onFragmentInteraction(uri);
-//        }
-//    }
 
     @Override
     public void onAttach(Context context) {
@@ -103,7 +99,6 @@ public class FragmentLocationSettings extends PreferenceFragment implements Text
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Location loc);
     }
 }
