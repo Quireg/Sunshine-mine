@@ -7,6 +7,7 @@ package ua.in.quireg.sunshine_mine.ui;
 import android.app.Fragment;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.util.Log;
@@ -15,7 +16,8 @@ import ua.in.quireg.sunshine_mine.R;
 import ua.in.quireg.sunshine_mine.core.LocationListGeneratorForRecycleView;
 import ua.in.quireg.sunshine_mine.core.base_objects.Location;
 
-public class ActivityLocationSettings extends PreferenceActivity implements FragmentLocationSettings.OnFragmentInteractionListener{
+public class ActivityLocationSettings extends PreferenceActivity implements FragmentLocationSettings.OnFragmentInteractionListener,
+        Preference.OnPreferenceChangeListener{
     private static final String TAG = ActivityLocationSettings.class.getSimpleName();
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,5 +36,10 @@ public class ActivityLocationSettings extends PreferenceActivity implements Frag
     @Override
     public void onFragmentInteraction(Location loc) {
         finish();
+    }
+
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
+        return false;
     }
 }

@@ -5,7 +5,10 @@ package ua.in.quireg.sunshine_mine.ui;
  */
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -16,22 +19,17 @@ import android.view.Menu;
 
 import ua.in.quireg.sunshine_mine.R;
 import ua.in.quireg.sunshine_mine.core.base_objects.Location;
+import ua.in.quireg.sunshine_mine.data.WeatherContract;
+import ua.in.quireg.sunshine_mine.data.WeatherProvider;
 
-/**
- * A {@link PreferenceActivity} that presents a set of application settings.
- * <p>
- * See <a href="http://developer.android.com/design/patterns/settings.html">
- * Android Design: Settings</a> for design guidelines and the <a
- * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
- * API Guide</a> for more information on developing a Settings UI.
- */
-public class ActivitySettings extends PreferenceActivity
-        implements Preference.OnPreferenceChangeListener, FragmentLocationSettings.OnFragmentInteractionListener{
+
+public class ActivitySettings extends PreferenceActivity implements
+        FragmentLocationSettings.OnFragmentInteractionListener,
+        SharedPreferences.OnSharedPreferenceChangeListener{
     private static final String LOG_TAG = ActivitySettings.class.getSimpleName();
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.detail, menu);
         return true;
     }
@@ -47,64 +45,40 @@ public class ActivitySettings extends PreferenceActivity
         super.onCreate(savedInstanceState);
         Log.d(LOG_TAG, "started");
         addPreferencesFromResource(R.xml.pref_general);
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        prefs.registerOnSharedPreferenceChangeListener(this);
 
-
-        // For all preferences, attach an OnPreferenceChangeListener so the UI summary can be
-        // updated when the preference changes.
-        bindPreferenceSummaryToValue(findPreference(getString(R.string.settings_dayscount_key)));
-        bindPreferenceSummaryToValue(findPreference(getString(R.string.settings_units_key)));
-        bindPreferenceSummaryToValue(findPreference(getString(R.string.settings_location_key)));
-    }
-
-    /**
-     * Attaches a listener so the summary is always updated with the preference value.
-     * Also fires the listener once, to initialize the summary (so it shows up before the value
-     * is changed.)
-     */
-    private void bindPreferenceSummaryToValue(Preference preference) {
-        // Set the listener to watch for value changes.
-        preference.setOnPreferenceChangeListener(this);
-
-        // Trigger the listener immediately with the preference's
-        // current value.
-        onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+        onSharedPreferenceChanged(prefs, getString(R.string.settings_dayscount_key));
+        onSharedPreferenceChanged(prefs, getString(R.string.settings_location_key));
+        onSharedPreferenceChanged(prefs, getString(R.string.settings_units_key));
     }
 
     @Override
-    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-        if (preference == (PreferenceScreen) findPreference("location")){
-            Intent intent = new Intent(this, ActivityLocationSettings.class);
-            startActivityForResult(intent,0);
-        }
-        return super.onPreferenceTreeClick(preferenceScreen, preference);
+    public void onFragmentInteraction(Location loc) {
+
     }
 
     @Override
-    public boolean onPreferenceChange(Preference preference, Object value) {
-        String stringValue = value.toString();
-
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Preference preference = findPreference(key);
 
         if (preference instanceof ListPreference) {
             // For list preferences, look up the correct display value in
             // the preference's 'entries' list (since they have separate labels/values).
             ListPreference listPreference = (ListPreference) preference;
-            int prefIndex = listPreference.findIndexOfValue(stringValue);
+            int prefIndex = listPreference.findIndexOfValue(sharedPreferences.getString(key, ""));
             if (prefIndex >= 0) {
                 preference.setSummary(listPreference.getEntries()[prefIndex]);
             }
         } else {
             // For other preferences, set the summary to the value's simple string representation.
-            preference.setSummary(stringValue);
+            if(key.equals(getString(R.string.settings_location_key))){
+                //getContent().getType(Uri.parse(WeatherProvider.LOCATION));
+            }
+            preference.setSummary((sharedPreferences.getString(key, "")));
             Log.d(LOG_TAG, "Settings changed");
         }
-        return true;
-    }
-
-    @Override
-    public void onFragmentInteraction(Location loc) {
 
     }
 }

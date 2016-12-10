@@ -64,7 +64,7 @@ public class LocationSettingsRecycleViewAdapter extends RecyclerView.Adapter<Loc
                     editor = sharedPreferences.edit();
                     if(editor != null) {
                         editor.putString("location", String.valueOf(holder.mItem.getId()));
-                        editor.commit();
+                        editor.apply();
                     }else{
                         Log.e(LOG_TAG, "Cannot obtain preferences");
                     }

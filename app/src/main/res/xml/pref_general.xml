@@ -5,12 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <PreferenceScreen
+    <Preference
         android:title="@string/settings_location_tag"
-        android:key="@string/settings_location_key"
-        android:summary="Choose your city"
-        android:defaultValue=""/>
-
+        android:key="@string/settings_location_key">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="ua.in.quireg.sunshine_mine"
+            android:targetClass="ua.in.quireg.sunshine_mine.ui.ActivityLocationSettings"
+            />
+    </Preference>
     <EditTextPreference
         android:title="@string/settings_dayscount_tag"
         android:key="@string/settings_dayscount_key"
