@@ -6,6 +6,7 @@ package ua.in.quireg.sunshine_mine.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
@@ -16,6 +17,9 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.util.Log;
 import android.view.Menu;
+
+import java.util.Map;
+import java.util.Set;
 
 import ua.in.quireg.sunshine_mine.R;
 import ua.in.quireg.sunshine_mine.core.base_objects.Location;
@@ -73,8 +77,23 @@ public class ActivitySettings extends PreferenceActivity implements
             }
         } else {
             // For other preferences, set the summary to the value's simple string representation.
+            String cityName = "not initialized";
             if(key.equals(getString(R.string.settings_location_key))){
-                //getContent().getType(Uri.parse(WeatherProvider.LOCATION));
+                Cursor c = getContentResolver().query(
+                        WeatherContract.LocationEntry.CONTENT_URI,
+                    null,
+                    WeatherContract.LocationEntry._ID + "= ?",
+                    new String[]{String.valueOf(sharedPreferences.getString("location", ""))},
+                    null
+                );
+                if(c != null){
+                    int idx = c.getColumnIndex(WeatherContract.LocationEntry.COLUMN_CITY_NAME);
+                        if(c.moveToFirst()){
+                            cityName = c.getString(idx);
+                            preference.setSummary(cityName);
+                        }
+                    }
+            return;
             }
             preference.setSummary((sharedPreferences.getString(key, "")));
             Log.d(LOG_TAG, "Settings changed");
