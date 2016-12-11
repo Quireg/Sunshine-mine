@@ -92,7 +92,8 @@ public class ActivitySettings extends PreferenceActivity implements
                             cityName = c.getString(idx);
                             preference.setSummary(cityName);
                         }
-                    }
+                    c.close();
+                }
             return;
             }
             preference.setSummary((sharedPreferences.getString(key, "")));
