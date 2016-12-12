@@ -20,13 +20,18 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.provider.Settings;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
 import ua.in.quireg.sunshine_mine.BuildConfig;
@@ -43,7 +48,7 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
     private static final String LOG_TAG = WeatherDbHelper.class.getSimpleName();
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 11;
 
     public static boolean isDatabaseReady = false;
 
@@ -58,8 +63,17 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
     }
 
     @Override
+    public void onConfigure(SQLiteDatabase db) {
+
+        super.onConfigure(db);
+        if(!isDatabaseReady) {
+            db.close();
+            db = new WeatherDbHelper(mContext).getWritableDatabase();
+        }
+    }
+
+    @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + LocationEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + WeatherEntry.TABLE_NAME);
 
         final String SQL_CREATE_WEATHER_TABLE = "CREATE TABLE " + WeatherEntry.TABLE_NAME + " (" +
@@ -93,17 +107,15 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
                 " UNIQUE (" + WeatherEntry.COLUMN_DATE + ", " +
                 WeatherEntry.COLUMN_LOC_KEY + ") ON CONFLICT REPLACE);";
 
-        final String SQL_CREATE_LOCATION_TABLE = "CREATE TABLE "+ LocationEntry.TABLE_NAME + " (" +
-                LocationEntry._ID + " INTEGER PRIMARY KEY," +
-                LocationEntry.COLUMN_CITY_NAME + " TEXT NOT NULL, " +
-                LocationEntry.COLUMN_CITY_LAT + " REAL NOT NULL, " +
-                LocationEntry.COLUMN_CITY_LON + " REAL NOT NULL, " +
-                LocationEntry.COLUMN_LOC_COUNTRYCODE + " TEXT NOT NULL);";
+//        final String SQL_CREATE_LOCATION_TABLE = "CREATE TABLE "+ LocationEntry.TABLE_NAME + " (" +
+//                LocationEntry._ID + " INTEGER PRIMARY KEY," +
+//                LocationEntry.COLUMN_CITY_NAME + " TEXT NOT NULL, " +
+//                LocationEntry.COLUMN_CITY_LAT + " REAL NOT NULL, " +
+//                LocationEntry.COLUMN_CITY_LON + " REAL NOT NULL, " +
+//                LocationEntry.COLUMN_LOC_COUNTRYCODE + " TEXT NOT NULL);";
 
-        sqLiteDatabase.execSQL(SQL_CREATE_LOCATION_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_WEATHER_TABLE);
 
-        new PrepareDatabase().execute(sqLiteDatabase);
     }
 
     @Override
@@ -114,7 +126,6 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
         // It does NOT depend on the version number for your application.
         // If you want to update the schema without wiping data, commenting out the next 2 lines
         // should be your top priority before modifying this method.
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + LocationEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + WeatherEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
@@ -172,6 +183,44 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
         }
     }
 
+    private void importDatabase(){
+        File data = Environment.getDataDirectory();
+        String dbPath = "/data/data/" + mContext.getPackageName() + "/databases/" + DATABASE_NAME;
+        File dbFile = new File(dbPath);
+        InputStream in = mContext.getResources().openRawResource(R.raw.weather);
+        OutputStream out = null;
+        try {
+            if(dbFile.delete() && dbFile.createNewFile()) {
+                out = new FileOutputStream(dbFile);
+                int read = 0;
+                byte[] bytes = new byte[1024];
+
+                while ((read = in.read(bytes)) != -1) {
+                    out.write(bytes, 0, read);
+                }
+                isDatabaseReady = true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            }finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (out != null) {
+                try {
+                    // outputStream.flush();
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     private class PrepareDatabase extends AsyncTask<SQLiteDatabase, Void, Void>{
 
         @Override
@@ -183,12 +232,7 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
 
         @Override
         protected Void doInBackground(SQLiteDatabase... params) {
-
-            try {
-                importLocationData(params[0]);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+                //importDatabase(params[0]);
             return null;
         }
 
