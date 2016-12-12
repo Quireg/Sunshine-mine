@@ -18,17 +18,13 @@ package ua.in.quireg.sunshine_mine.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.AsyncTask;
-import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Constructor;
 
-import ua.in.quireg.sunshine_mine.BuildConfig;
 import ua.in.quireg.sunshine_mine.R;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.LocationEntry;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherEntry;
@@ -36,8 +32,7 @@ import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherEntry;
 /**
  * Manages a local database for weather data.
  */
-public class
-WeatherDbHelper extends SQLiteOpenHelper {
+public class WeatherDbHelper extends SQLiteOpenHelper {
 
     private static final String LOG_TAG = WeatherDbHelper.class.getSimpleName();
 
