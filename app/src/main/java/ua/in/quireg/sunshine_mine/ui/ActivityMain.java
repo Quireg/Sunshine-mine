@@ -69,11 +69,25 @@ public class ActivityMain extends AppCompatActivity {
         requestParams = new HashMap<>();
 
         //get location from params
-        requestParams.put(WeatherAPIParams.CITY_ID, pref.getString(getString(R.string.settings_location_key),""));
+        requestParams.put(WeatherAPIParams.CITY_ID, pref.getString(getString(R.string.settings_location_key), initializeLocationSetting()));
         requestParams.put(WeatherAPIParams.ZIP_CODE, "01032");
-        requestParams.put(WeatherAPIParams.DAYS_COUNT, pref.getString(getString(R.string.settings_dayscount_key),""));
+        requestParams.put(WeatherAPIParams.DAYS_COUNT, pref.getString(getString(R.string.settings_dayscount_key),"15"));
         requestParams.put(WeatherAPIParams.UNITS, "metric");
         requestParams.put(WeatherAPIParams.OUTPUT_MODE, "json");
+    }
+    private String initializeLocationSetting(){
+        //TODO get default location from GPS
+        String result = "703448";
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        if(!preferences.contains(getString(R.string.settings_location_key))) {
+            SharedPreferences.Editor editor = preferences.edit();
+            if(editor != null) {
+                editor.putString(getString(R.string.settings_location_key), result);
+                editor.apply();
+            }
+        }
+        return result;
     }
 
     //callback to retrieve new data and propagate it to array adapter
