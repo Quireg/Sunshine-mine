@@ -1,25 +1,17 @@
 package ua.in.quireg.sunshine_mine.core;
 
-import android.text.format.Time;
 import android.util.Log;
 
-import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
 
 import ua.in.quireg.sunshine_mine.BuildConfig;
 import ua.in.quireg.sunshine_mine.core.models.WeatherAPIJsonRespondModel;
 import ua.in.quireg.sunshine_mine.core.models.WeatherByDayModel;
 import ua.in.quireg.sunshine_mine.exceptions.ParseWeatherFromJsonException;
-import ua.in.quireg.sunshine_mine.ui.ActivityMain;
 
 
 public final class WeatherJsonParser {
@@ -35,25 +27,8 @@ public final class WeatherJsonParser {
         return shortenedDateFormat.format(time);
     }
 
-    /**
-     * Prepare the weather high/lows for presentation.
-     */
-    private String formatHighLows(double high, double low) {
-        // For presentation, assume the user doesn't care about tenths of a degree.
-        long roundedHigh = Math.round(high);
-        long roundedLow = Math.round(low);
 
-        String highLowStr = roundedHigh + "/" + roundedLow;
-        return highLowStr;
-    }
 
-    /**
-     * Take the String representing the complete forecast in JSON Format and
-     * pull out the data we need to construct the Strings needed for the wireframes.
-     *
-     * Fortunately parsing is easy:  constructor takes the JSON string and converts it
-     * into an Object hierarchy for us.
-     */
      public WeatherByDayModel[] parserWeatherDataFromJson(String forecastJsonStr)
             throws ParseWeatherFromJsonException {
 

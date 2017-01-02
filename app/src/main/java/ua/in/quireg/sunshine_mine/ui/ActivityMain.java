@@ -119,8 +119,7 @@ public class ActivityMain extends AppCompatActivity {
                 if(result != null){
                     String[] retrievedInfoToBeDisplayed = new String[result.length];
                     for (int i = 0; i < result.length; i++) {
-                        retrievedInfoToBeDisplayed[i] = result[i].temperatureModel.min + "--//--"
-                                + result[i].temperatureModel.max;
+                        retrievedInfoToBeDisplayed[i] =  formatHighLows(result[i].temperatureModel.min, result[i].temperatureModel.max);
                     }
                     forecast = retrievedInfoToBeDisplayed;
                     return retrievedInfoToBeDisplayed;
@@ -144,6 +143,15 @@ public class ActivityMain extends AppCompatActivity {
             arrayAdapter.notifyDataSetChanged();
 
             flf.refreshColmpleted();
+        }
+
+        private String formatHighLows(double high, double low) {
+            // For presentation, assume the user doesn't care about tenths of a degree.
+            long roundedHigh = Math.round(high);
+            long roundedLow = Math.round(low);
+
+            String highLowStr = roundedHigh + "  --/--  " + roundedLow;
+            return highLowStr;
         }
 
     }
