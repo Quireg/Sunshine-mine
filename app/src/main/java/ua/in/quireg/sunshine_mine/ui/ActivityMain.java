@@ -21,6 +21,7 @@ import ua.in.quireg.sunshine_mine.core.FetchWeatherAPIData;
 import ua.in.quireg.sunshine_mine.core.WeatherAPIParams;
 import ua.in.quireg.sunshine_mine.core.WeatherJsonParser;
 import ua.in.quireg.sunshine_mine.core.models.WeatherByDayModel;
+import ua.in.quireg.sunshine_mine.data.WeatherDbHelper;
 import ua.in.quireg.sunshine_mine.exceptions.FetchWeatherFromAPIException;
 import ua.in.quireg.sunshine_mine.exceptions.ParseWeatherFromJsonException;
 
@@ -41,6 +42,10 @@ public class ActivityMain extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Initiate DB creation.
+        WeatherDbHelper.importDatabase(getApplicationContext());
+
 
         arrayAdapter = new ArrayAdapter<>(getApplicationContext(),
                 R.layout.fragment_forecast_list_item,

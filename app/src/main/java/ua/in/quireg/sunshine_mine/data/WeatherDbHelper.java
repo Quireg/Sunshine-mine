@@ -101,19 +101,25 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
 
 
     public static void importDatabase(Context mContext) {
-        String dbPath = "/data/data/" + mContext.getPackageName() + "/databases/" + DATABASE_NAME;
-        File dbFile = new File(dbPath);
+        File dbPath1 = mContext.getDatabasePath(DATABASE_NAME);
+        String dbPathString = dbPath1.getAbsolutePath();
+        File dbFile = new File(dbPathString);
         InputStream in = mContext.getResources().openRawResource(R.raw.weather);
         OutputStream out = null;
         try {
             //Only in case there is no db file new one will be created from asset.
-            if (!dbFile.exists() && dbFile.getParentFile().mkdirs() && dbFile.createNewFile()) {
-                out = new FileOutputStream(dbFile);
-                int read = 0;
-                byte[] bytes = new byte[1024];
+            if (!dbFile.exists()) {
+                dbFile.getParentFile().mkdirs();
+                if (dbFile.createNewFile()) {
+                    {
+                        out = new FileOutputStream(dbFile);
+                        int read = 0;
+                        byte[] bytes = new byte[1024];
 
-                while ((read = in.read(bytes)) != -1) {
-                    out.write(bytes, 0, read);
+                        while ((read = in.read(bytes)) != -1) {
+                            out.write(bytes, 0, read);
+                        }
+                    }
                 }
             }
         } catch (IOException e) {

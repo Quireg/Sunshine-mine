@@ -144,7 +144,6 @@ public class WeatherProvider extends ContentProvider {
         //Before DBHelper is actually created pre-defined db file needs to be imported.
         //I can`t figure out how to do this afterwards as dbhelper holds links to newly created database
         //and makes impossible to replace db file without breaking it's links.
-        WeatherDbHelper.importDatabase(getContext());
 
         mOpenHelper = new WeatherDbHelper(getContext());
         return true;
