@@ -15,19 +15,18 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.Arrays;
 import java.util.List;
 
 import ua.in.quireg.sunshine_mine.R;
 import ua.in.quireg.sunshine_mine.core.EventBusEvents;
 import ua.in.quireg.sunshine_mine.core.LocationListGeneratorForRecycleView;
-import ua.in.quireg.sunshine_mine.core.base_objects.Location;
+import ua.in.quireg.sunshine_mine.core.models.LocationModel;
 
 public class LocationSettingsRecycleViewAdapter extends RecyclerView.Adapter<LocationSettingsRecycleViewAdapter.ViewHolder> {
 
     private final static String LOG_TAG = LocationSettingsRecycleViewAdapter.class.getSimpleName();
 
-    private List<Location> locations = LocationListGeneratorForRecycleView.location_list;
+    private List<LocationModel> locationModels = LocationListGeneratorForRecycleView.location_models_list;
     private final FragmentLocationSettings.OnFragmentInteractionListener mListener;
     private Context appContext;
     private SharedPreferences.Editor editor;
@@ -51,8 +50,8 @@ public class LocationSettingsRecycleViewAdapter extends RecyclerView.Adapter<Loc
 
     @Override
     public void onBindViewHolder(final LocationSettingsRecycleViewAdapter.ViewHolder holder, int position) {
-        holder.mItem = locations.get(position);
-        holder.mIdView.setText(locations.get(position).getName() + " -//- "+ locations.get(position).getCountryCode());
+        holder.mItem = locationModels.get(position);
+        holder.mIdView.setText(locationModels.get(position).getName() + " -//- "+ locationModels.get(position).getCountryCode());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,13 +74,13 @@ public class LocationSettingsRecycleViewAdapter extends RecyclerView.Adapter<Loc
 
     @Override
     public int getItemCount() {
-        return locations.size();
+        return locationModels.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mIdView;
-        public Location mItem;
+        public LocationModel mItem;
 
         public ViewHolder(View view) {
             super(view);

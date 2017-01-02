@@ -1,19 +1,14 @@
-package ua.in.quireg.sunshine_mine.core.base_objects;
+package ua.in.quireg.sunshine_mine.core.models;
 
-import android.util.Log;
 
-/**
- * Created by Arcturus on 11/23/2016.
- */
-
-public class Location {
+public class LocationModel {
     private long id;
     private String name;
     private double lat;
     private double lon;
     private String countryCode;
 
-    public Location(long id, String name, double lat, double lon, String countryCode) {
+    public LocationModel(long id, String name, double lat, double lon, String countryCode) {
         this.id = id;
         this.name = name;
         this.lat = lat;
@@ -61,11 +56,11 @@ public class Location {
         this.countryCode = countryCode;
     }
 
-    public static Location[] getFakeLocationsArray(){
-        Location[] loc = new Location[10];
+    public static LocationModel[] getFakeLocationsArray(){
+        LocationModel[] loc = new LocationModel[10];
         int i = 0;
         while (i < 10){
-            loc[i] = new Location(123, "test", 12, 12, "ASd");
+            loc[i] = new LocationModel(123, "test", 12, 12, "ASd");
             i++;
         }
         return loc;

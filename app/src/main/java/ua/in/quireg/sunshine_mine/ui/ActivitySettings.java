@@ -4,27 +4,19 @@ package ua.in.quireg.sunshine_mine.ui;
  * Created by Artur Menchenko on 10/15/2016.
  */
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
 import android.util.Log;
 import android.view.Menu;
 
-import java.util.Map;
-import java.util.Set;
-
 import ua.in.quireg.sunshine_mine.R;
-import ua.in.quireg.sunshine_mine.core.base_objects.Location;
+import ua.in.quireg.sunshine_mine.core.models.LocationModel;
 import ua.in.quireg.sunshine_mine.data.WeatherContract;
-import ua.in.quireg.sunshine_mine.data.WeatherProvider;
 
 
 public class ActivitySettings extends PreferenceActivity implements
@@ -59,7 +51,7 @@ public class ActivitySettings extends PreferenceActivity implements
     }
 
     @Override
-    public void onFragmentInteraction(Location loc) {
+    public void onFragmentInteraction(LocationModel loc) {
 
     }
 

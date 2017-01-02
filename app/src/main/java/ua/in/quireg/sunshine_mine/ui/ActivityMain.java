@@ -2,7 +2,6 @@ package ua.in.quireg.sunshine_mine.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,9 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
-import org.json.JSONException;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,17 +17,19 @@ import java.util.List;
 import java.util.Map;
 
 import ua.in.quireg.sunshine_mine.R;
-import ua.in.quireg.sunshine_mine.core.GrabWeatherAPIData;
+import ua.in.quireg.sunshine_mine.core.FetchWeatherAPIData;
 import ua.in.quireg.sunshine_mine.core.WeatherAPIParams;
-import ua.in.quireg.sunshine_mine.core.WeatherDataParser;
-import ua.in.quireg.sunshine_mine.data.WeatherDbHelper;
+import ua.in.quireg.sunshine_mine.core.WeatherJsonParser;
+import ua.in.quireg.sunshine_mine.core.models.WeatherByDayModel;
+import ua.in.quireg.sunshine_mine.exceptions.FetchWeatherFromAPIException;
+import ua.in.quireg.sunshine_mine.exceptions.ParseWeatherFromJsonException;
 
 
 public class ActivityMain extends AppCompatActivity {
 
     private static final String LOG_TAG = ActivityMain.class.getSimpleName();
 
-    private Map<String, String> requestParams;
+    private HashMap<String, String> requestParams;
 
     public static HashMap<String, Double> coordinates = new HashMap<>();
 
@@ -66,7 +64,7 @@ public class ActivityMain extends AppCompatActivity {
     private void initializeWeatherParameters(){
         //TODO get rid of this method.
         pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        requestParams = new HashMap<>();
+        requestParams = new HashMap<String, String>();
 
         //get location from params
         requestParams.put(WeatherAPIParams.CITY_ID, pref.getString(getString(R.string.settings_location_key), initializeLocationSetting()));
@@ -110,22 +108,27 @@ public class ActivityMain extends AppCompatActivity {
     }
 
 
-    private class RetrieveWeatherInBackground extends AsyncTask<Map<String, String>, Void, String[]> {
+    private class RetrieveWeatherInBackground extends AsyncTask<HashMap<String, String>, Void, String[]> {
         @Override
-        protected String[] doInBackground(Map<String, String>... params) {
+        protected String[] doInBackground(HashMap<String, String>... params) {
             try {
-                String JSONData = GrabWeatherAPIData.grabData(params[0]);
-                WeatherDataParser wdp = new WeatherDataParser();
-                boolean isMetricBool = (pref.getString(getString(R.string.settings_units_key), "metric").equalsIgnoreCase("metric"));
-                String[] result = wdp.getWeatherDataFromJson(JSONData, isMetricBool);
+                String JSONData = FetchWeatherAPIData.fetch(params[0]);
+                WeatherJsonParser parser = new WeatherJsonParser();
+                boolean isMetric = (pref.getString(getString(R.string.settings_units_key), "metric").equalsIgnoreCase("metric"));
+                WeatherByDayModel[] result = parser.parserWeatherDataFromJson(JSONData);
                 if(result != null){
-                    forecast = result;
-                    return result;
+                    String[] retrievedInfoToBeDisplayed = new String[result.length];
+                    for (int i = 0; i < result.length; i++) {
+                        retrievedInfoToBeDisplayed[i] = result[i].temperatureModel.min + "--//--"
+                                + result[i].temperatureModel.max;
+                    }
+                    forecast = retrievedInfoToBeDisplayed;
+                    return retrievedInfoToBeDisplayed;
                 }
                 return new String[]{"No Data Received"};
-            } catch (IOException e) {
+            } catch (FetchWeatherFromAPIException e) {
                 e.printStackTrace();
-            } catch (JSONException e) {
+            } catch (ParseWeatherFromJsonException e) {
                 e.printStackTrace();
             }
             return null;

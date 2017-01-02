@@ -1,7 +1,6 @@
 package ua.in.quireg.sunshine_mine.ui;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import android.preference.PreferenceFragment;
@@ -14,13 +13,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import org.greenrobot.eventbus.EventBus;
 
 import ua.in.quireg.sunshine_mine.R;
 import ua.in.quireg.sunshine_mine.core.EventBusEvents;
-import ua.in.quireg.sunshine_mine.core.base_objects.Location;
+import ua.in.quireg.sunshine_mine.core.models.LocationModel;
 
 public class FragmentLocationSettings extends PreferenceFragment implements TextWatcher{
 
@@ -99,6 +97,6 @@ public class FragmentLocationSettings extends PreferenceFragment implements Text
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Location loc);
+        void onFragmentInteraction(LocationModel loc);
     }
 }

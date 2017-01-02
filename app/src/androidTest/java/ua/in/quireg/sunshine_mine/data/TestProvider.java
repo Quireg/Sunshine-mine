@@ -77,7 +77,7 @@ public class TestProvider extends AndroidTestCase {
                 null,
                 null
         );
-        assertEquals("Error: Records not deleted from Location table during delete", 0, cursor.getCount());
+        assertEquals("Error: Records not deleted from LocationModel table during delete", 0, cursor.getCount());
         cursor.close();
     }
 
@@ -223,7 +223,7 @@ public class TestProvider extends AndroidTestCase {
         // Has the NotificationUri been set correctly? --- we can only test this easily against API
         // level 19 or greater because getNotificationUri was added in API level 19.
         if ( Build.VERSION.SDK_INT >= 19 ) {
-            assertEquals("Error: Location Query did not properly set NotificationUri",
+            assertEquals("Error: LocationModel Query did not properly set NotificationUri",
                     locationCursor.getNotificationUri(), WeatherContract.LocationEntry.CONTENT_URI);
         }
     }
@@ -356,7 +356,7 @@ public class TestProvider extends AndroidTestCase {
         // sure that the join worked and we actually get all the values back
         weatherValues.putAll(testValues);
 
-        // Get the joined Weather and Location data
+        // Get the joined Weather and LocationModel data
         weatherCursor = mContext.getContentResolver().query(
                 WeatherContract.WeatherEntry.buildWeatherLocation(TestUtilities.TEST_LOCATION),
                 null, // leaving "columns" null just returns all the columns.
@@ -364,10 +364,10 @@ public class TestProvider extends AndroidTestCase {
                 null, // values for "where" clause
                 null  // sort order
         );
-        TestUtilities.validateCursor("testInsertReadProvider.  Error validating joined Weather and Location Data.",
+        TestUtilities.validateCursor("testInsertReadProvider.  Error validating joined Weather and LocationModel Data.",
                 weatherCursor, weatherValues);
 
-        // Get the joined Weather and Location data with a start date
+        // Get the joined Weather and LocationModel data with a start date
         weatherCursor = mContext.getContentResolver().query(
                 WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
                         TestUtilities.TEST_LOCATION, TestUtilities.TEST_DATE),
@@ -376,7 +376,7 @@ public class TestProvider extends AndroidTestCase {
                 null, // values for "where" clause
                 null  // sort order
         );
-        TestUtilities.validateCursor("testInsertReadProvider.  Error validating joined Weather and Location Data with start date.",
+        TestUtilities.validateCursor("testInsertReadProvider.  Error validating joined Weather and LocationModel Data with start date.",
                 weatherCursor, weatherValues);
 
         // Get the joined Weather data for a specific date
@@ -387,7 +387,7 @@ public class TestProvider extends AndroidTestCase {
                 null,
                 null
         );
-        TestUtilities.validateCursor("testInsertReadProvider.  Error validating joined Weather and Location data for a specific date.",
+        TestUtilities.validateCursor("testInsertReadProvider.  Error validating joined Weather and LocationModel data for a specific date.",
                 weatherCursor, weatherValues);
     }
 

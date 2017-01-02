@@ -11,10 +11,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import ua.in.quireg.sunshine_mine.core.base_objects.Location;
+import ua.in.quireg.sunshine_mine.core.models.LocationModel;
 import ua.in.quireg.sunshine_mine.data.WeatherContract;
-import ua.in.quireg.sunshine_mine.data.WeatherProvider;
-import ua.in.quireg.sunshine_mine.ui.ThisApplication;
 
 /**
  * Created by Arcturus on 11/23/2016.
@@ -24,7 +22,7 @@ public class LocationListGeneratorForRecycleView {
     private static final String LOG_TAG = LocationListGeneratorForRecycleView.class.getSimpleName();
 
     private static LocationListGeneratorForRecycleView mInstance;
-    public static List<Location> location_list = Collections.synchronizedList(new ArrayList<Location>());
+    public static List<LocationModel> location_models_list = Collections.synchronizedList(new ArrayList<LocationModel>());
 
     private LocationListGeneratorForRecycleView(){
         EventBus.getDefault().register(this);
@@ -40,7 +38,7 @@ public class LocationListGeneratorForRecycleView {
 
     @Subscribe(threadMode = ThreadMode.POSTING)
     public void onMessageEvent(EventBusEvents.LocationTextViewUpdated event) {
-        location_list.clear();
+        location_models_list.clear();
         String locationText = event.textView.getText().toString();
         if(locationText.isEmpty()) {
             //No need to fetch anything.
@@ -53,14 +51,14 @@ public class LocationListGeneratorForRecycleView {
         if (c != null ) {
             if  (c.moveToFirst()) {
                 do {
-                    Location loc = new Location(
+                    LocationModel loc = new LocationModel(
                             c.getLong(c.getColumnIndex(WeatherContract.LocationEntry._ID)),
                             c.getString(c.getColumnIndex(WeatherContract.LocationEntry.COLUMN_CITY_NAME)),
                             c.getDouble(c.getColumnIndex(WeatherContract.LocationEntry.COLUMN_CITY_LAT)),
                             c.getDouble(c.getColumnIndex(WeatherContract.LocationEntry.COLUMN_CITY_LON)),
                             c.getString(c.getColumnIndex(WeatherContract.LocationEntry.COLUMN_LOC_COUNTRYCODE))
                     );
-                    location_list.add(loc);
+                    location_models_list.add(loc);
                     Log.d(LOG_TAG, loc.toString());
                 }while (c.moveToNext());
             }

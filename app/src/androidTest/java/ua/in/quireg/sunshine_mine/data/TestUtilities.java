@@ -92,7 +92,7 @@ public class TestUtilities extends AndroidTestCase {
         locationRowId = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null, testValues);
 
         // Verify we got a row back.
-        assertTrue("Error: Failure to insert Novosibirsk Location Values", locationRowId != -1);
+        assertTrue("Error: Failure to insert Novosibirsk LocationModel Values", locationRowId != -1);
 
         return locationRowId;
     }
