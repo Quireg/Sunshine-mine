@@ -1,9 +1,9 @@
-package ua.in.quireg.sunshine_mine.core.models;
+package ua.in.quireg.sunshine_mine.core.models.daily_forecast_models;
 
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
-public class WeatherAPIJsonRespondModel {
+public class DailyWeatherAPIJsonRespondModel {
     @JsonProperty("city")
     public CityModel cityModel;
 

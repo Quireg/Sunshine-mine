@@ -8,6 +8,10 @@ import ua.in.quireg.sunshine_mine.BuildConfig;
 public class WeatherURIBuilder {
     private static final String APIkey = BuildConfig.WEATHER_API_KEY;
 
+    public static final int CurrentWeatherUri = 1;
+    public static final int HourlyForecastUri = 2;
+    public static final int DailyForecastUri = 3;
+
     public static Uri.Builder buildWeatherURIforID(HashMap<String, String> params){
         Uri.Builder uriRequest = new Uri.Builder()
                 .scheme("http")
@@ -24,5 +28,18 @@ public class WeatherURIBuilder {
 
         uriRequest.appendQueryParameter("APPID", APIkey);
         return uriRequest;
+    }
+
+    public static int uriMatcher(Uri.Builder builder){
+        switch (builder.build().getLastPathSegment()){
+            case "http://api.openweathermap.org/data/2.5/forecast/daily":
+                return DailyForecastUri;
+            case "http://api.openweathermap.org/data/2.5/forecast":
+                return HourlyForecastUri;
+            case "http://api.openweathermap.org/data/2.5/weather":
+                return CurrentWeatherUri;
+            default:
+                return 0;
+        }
     }
 }

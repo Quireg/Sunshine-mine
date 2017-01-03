@@ -28,9 +28,7 @@ public class LocationSettingsRecycleViewAdapter extends RecyclerView.Adapter<Loc
 
     private List<LocationModel> locationModels = LocationListGeneratorForRecycleView.location_models_list;
     private final FragmentLocationSettings.OnFragmentInteractionListener mListener;
-    private Context appContext;
-    private SharedPreferences.Editor editor;
-    SharedPreferences sharedPreferences;
+    private SharedPreferences sharedPreferences;
 
 
     public LocationSettingsRecycleViewAdapter(FragmentLocationSettings.OnFragmentInteractionListener listener) {
@@ -40,7 +38,7 @@ public class LocationSettingsRecycleViewAdapter extends RecyclerView.Adapter<Loc
 
     @Override
     public LocationSettingsRecycleViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        appContext = parent.getContext();
+        Context appContext = parent.getContext();
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(appContext);
 
         View view = LayoutInflater.from(appContext)
@@ -51,7 +49,7 @@ public class LocationSettingsRecycleViewAdapter extends RecyclerView.Adapter<Loc
     @Override
     public void onBindViewHolder(final LocationSettingsRecycleViewAdapter.ViewHolder holder, int position) {
         holder.mItem = locationModels.get(position);
-        holder.mIdView.setText(locationModels.get(position).getName() + " -//- "+ locationModels.get(position).getCountryCode());
+        holder.mIdView.setText(locationModels.get(position).getName() + " -//- " + locationModels.get(position).getCountryCode());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,11 +58,11 @@ public class LocationSettingsRecycleViewAdapter extends RecyclerView.Adapter<Loc
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
                     mListener.onFragmentInteraction(holder.mItem);
-                    editor = sharedPreferences.edit();
-                    if(editor != null) {
-                        editor.putString("location", String.valueOf(holder.mItem.getId()));
-                        editor.apply();
-                    }else{
+                    if (sharedPreferences != null) {
+                        sharedPreferences.edit()
+                                .putString("location", String.valueOf(holder.mItem.getId()))
+                                .apply();
+                    } else {
                         Log.e(LOG_TAG, "Cannot obtain preferences");
                     }
                 }
@@ -97,7 +95,9 @@ public class LocationSettingsRecycleViewAdapter extends RecyclerView.Adapter<Loc
     @Subscribe(threadMode = ThreadMode.POSTING)
     public void onMessageEvent(EventBusEvents.LocationListUpdated event) {
         this.notifyDataSetChanged();
-    };
+    }
+
+    ;
 
     @Override
     protected void finalize() throws Throwable {

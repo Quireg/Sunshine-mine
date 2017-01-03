@@ -1,9 +1,5 @@
-package ua.in.quireg.sunshine_mine.core.models;
+package ua.in.quireg.sunshine_mine.core.models.hourly_forecast_models;
 
-
-import android.util.Pair;
-
-import java.util.ArrayList;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -20,7 +16,7 @@ public class CityModel {
     @JsonProperty("country")
     public String country;
 
-    @JsonProperty("population")
-    public int population;
+//    @JsonProperty("population")
+//    public int population;
 
 }

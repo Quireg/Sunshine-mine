@@ -19,12 +19,9 @@ public final class FetchWeatherAPIData {
 
     private static final String LOG_TAG = FetchWeatherAPIData.class.getSimpleName();
 
-    public static synchronized String fetch(HashMap<String, String> params) throws FetchWeatherFromAPIException {
+    public static synchronized String fetch(Uri.Builder uriRequest) throws FetchWeatherFromAPIException {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
-
-        Uri.Builder uriRequest = WeatherURIBuilder.buildWeatherURIforID(params);
-
         String forecastJsonStr = null;
         try {
             if(BuildConfig.DEBUG) Log.d(LOG_TAG, "Attempting to fetch:" + uriRequest.toString());

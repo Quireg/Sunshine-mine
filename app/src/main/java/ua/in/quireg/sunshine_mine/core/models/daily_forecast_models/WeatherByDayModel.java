@@ -1,11 +1,11 @@
-package ua.in.quireg.sunshine_mine.core.models;
+package ua.in.quireg.sunshine_mine.core.models.daily_forecast_models;
 
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
 public class WeatherByDayModel {
     @JsonProperty("dt")
-    public int dt;
+    public long timestamp;
 
     @JsonProperty("temp")
     public TemperatureModel temperatureModel;
@@ -28,7 +28,7 @@ public class WeatherByDayModel {
     @JsonProperty("clouds")
     public double clouds;
 
-    @JsonProperty("snow")
-    public double snow;
+//    @JsonProperty("snow")
+//    public double snow;
 
 }
