@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import ua.in.quireg.sunshine_mine.R;
-import ua.in.quireg.sunshine_mine.async.RetrieveDailyForecastInBackground;
+import ua.in.quireg.sunshine_mine.async.RetrieveWeatherInBackground;
 import ua.in.quireg.sunshine_mine.core.WeatherAPIParams;
 import ua.in.quireg.sunshine_mine.core.WeatherURIBuilder;
 import ua.in.quireg.sunshine_mine.data.WeatherDbHelper;
@@ -92,7 +92,7 @@ public class ActivityMain extends AppCompatActivity {
     public void refreshForecast() {
         Log.d(LOG_TAG, "Refresh Forecast invoked!");
 
-        RetrieveDailyForecastInBackground task = new RetrieveDailyForecastInBackground();
+        RetrieveWeatherInBackground task = new RetrieveWeatherInBackground();
         initializeWeatherParameters();
         Uri.Builder builder = WeatherURIBuilder.buildWeatherURIforID(requestParams);
         task.execute(builder);

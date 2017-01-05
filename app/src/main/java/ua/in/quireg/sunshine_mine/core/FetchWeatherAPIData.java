@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
 
 import ua.in.quireg.sunshine_mine.BuildConfig;
 import ua.in.quireg.sunshine_mine.exceptions.FetchWeatherFromAPIException;
@@ -41,7 +40,7 @@ public final class FetchWeatherAPIData {
 
             // Read the input stream into a String
             InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             if (inputStream == null) {
                 throw new FetchWeatherFromAPIException("Input was not created");
             }
@@ -52,7 +51,7 @@ public final class FetchWeatherAPIData {
                 // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
                 // But it does make debugging a *lot* easier if you print out the completed
                 // buffer for debugging.
-                buffer.append(line + "\n");
+                buffer.append(line).append("\n");
             }
 
             if (buffer.length() == 0) {

@@ -13,14 +13,16 @@ import java.io.IOException;
 import ua.in.quireg.sunshine_mine.BuildConfig;
 import ua.in.quireg.sunshine_mine.core.FetchWeatherAPIData;
 import ua.in.quireg.sunshine_mine.core.WeatherURIBuilder;
+import ua.in.quireg.sunshine_mine.core.models.current_weather_models.CurrentWeatherAPIJsonRespondModel;
 import ua.in.quireg.sunshine_mine.core.models.daily_forecast_models.DailyWeatherAPIJsonRespondModel;
 import ua.in.quireg.sunshine_mine.core.models.hourly_forecast_models.HourlyWeatherAPIJsonRespondModel;
+import ua.in.quireg.sunshine_mine.data.WeatherDbImporter;
 import ua.in.quireg.sunshine_mine.exceptions.FetchWeatherFromAPIException;
 import ua.in.quireg.sunshine_mine.exceptions.ParseWeatherFromJsonException;
 
-public class RetrieveDailyForecastInBackground extends AsyncTask<Uri.Builder, Void, Pair<Uri.Builder, String>[]> {
+public class RetrieveWeatherInBackground extends AsyncTask<Uri.Builder, Void, Pair<Uri.Builder, String>[]> {
 
-    private static final String LOG_TAG = RetrieveDailyForecastInBackground.class.getSimpleName();
+    private static final String LOG_TAG = RetrieveWeatherInBackground.class.getSimpleName();
 
     @Override
     @SuppressWarnings("unchecked")
@@ -63,24 +65,39 @@ public class RetrieveDailyForecastInBackground extends AsyncTask<Uri.Builder, Vo
     }
 
     private void parseRetrievedJson(Pair<Uri.Builder, String>[] pairs) throws ParseWeatherFromJsonException {
+
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(SerializationConfig.Feature.USE_ANNOTATIONS, true);
+
+
+
         for (Pair<Uri.Builder, String> pair : pairs) {
+            boolean result = false;
             try {
-                if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Processing retrieved JSON");
+                if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Processing retrieved JSON " + pair.first.build().getLastPathSegment());
 
                 if (WeatherURIBuilder.uriMatcher(pair.first) == WeatherURIBuilder.CurrentWeatherUri) {
-                    //TODO create models for current weather
-                    //TODO import respond into database
+                    CurrentWeatherAPIJsonRespondModel respondModel =
+                            mapper.readValue(pair.second, CurrentWeatherAPIJsonRespondModel.class);
+
+                    result = WeatherDbImporter.getInstance().proceedCurrentWeatherAPIJsonRespondModel(respondModel);
+
                 } else if (WeatherURIBuilder.uriMatcher(pair.first) == WeatherURIBuilder.HourlyForecastUri) {
                     HourlyWeatherAPIJsonRespondModel respondModel
                             = mapper.readValue(pair.second, HourlyWeatherAPIJsonRespondModel.class);
-                    //TODO import respond into database
+
+                    result = WeatherDbImporter.getInstance().proceedHourlyWeatherAPIJsonRespondModel(respondModel);
+
                 } else if (WeatherURIBuilder.uriMatcher(pair.first) == WeatherURIBuilder.DailyForecastUri) {
                     DailyWeatherAPIJsonRespondModel respondModel
                             = mapper.readValue(pair.second, DailyWeatherAPIJsonRespondModel.class);
-                    //TODO import respond into database
+
+                    result = WeatherDbImporter.getInstance().proceedDailyWeatherAPIJsonRespondModel(respondModel);
+
+                }
+                if(!result){
+                    Log.e(LOG_TAG, "Error while exporting to the database");
                 }
 
             } catch (IOException e) {

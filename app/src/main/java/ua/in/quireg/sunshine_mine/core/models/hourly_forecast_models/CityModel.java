@@ -5,7 +5,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 public class CityModel {
     @JsonProperty("id")
-    public int ID;
+    public int id;
 
     @JsonProperty("name")
     public String name;

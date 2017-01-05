@@ -13,6 +13,18 @@ public class WeatherByHourModel {
     @JsonProperty("weather")
     public WeatherTypeModel[] weatherTypeModel;
 
+    @JsonProperty("wind")
+    public WindModel windModel;
+
+    @JsonProperty("clouds")
+    public CloudsModel cloudsModel;
+
+    @JsonProperty("rain")
+    public RainModel rainModel;
+
+    @JsonProperty("snow")
+    public SnowModel snowModel;
+
     @JsonProperty("dt_txt")
     public String dt_txt;
 
