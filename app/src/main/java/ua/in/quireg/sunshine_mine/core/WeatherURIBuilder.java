@@ -12,7 +12,7 @@ public class WeatherURIBuilder {
     public static final int HourlyForecastUri = 2;
     public static final int DailyForecastUri = 3;
 
-    public static Uri.Builder buildWeatherURIforID(HashMap<String, String> params){
+    public static Uri buildWeatherURIforID(HashMap<String, String> params){
         Uri.Builder uriRequest = new Uri.Builder()
                 .scheme("http")
                 .authority("api.openweathermap.org")
@@ -27,7 +27,7 @@ public class WeatherURIBuilder {
                 .appendQueryParameter("units", params.get("units"));
 
         uriRequest.appendQueryParameter("APPID", APIkey);
-        return uriRequest;
+        return uriRequest.build();
     }
 
     public static int uriMatcher(Uri.Builder builder){
