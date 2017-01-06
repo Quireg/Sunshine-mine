@@ -30,8 +30,8 @@ public class WeatherURIBuilder {
         return uriRequest.build();
     }
 
-    public static int uriMatcher(Uri.Builder builder){
-        switch (builder.build().getLastPathSegment()){
+    public static int uriMatcher(Uri uri){
+        switch (uri.getLastPathSegment()){
             case "http://api.openweathermap.org/data/2.5/forecast/daily":
                 return DailyForecastUri;
             case "http://api.openweathermap.org/data/2.5/forecast":

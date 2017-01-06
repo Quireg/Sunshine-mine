@@ -40,7 +40,6 @@ public class ActivityMain extends AppCompatActivity {
         //Initiate DB creation.
         WeatherDbHelper.importDatabase(getApplicationContext());
 
-
         arrayAdapter = new ArrayAdapter<>(getApplicationContext(),
                 R.layout.fragment_forecast_list_item,
                 new ArrayList<>(Arrays.asList(forecast))
@@ -94,8 +93,8 @@ public class ActivityMain extends AppCompatActivity {
 
         RetrieveWeatherInBackground task = new RetrieveWeatherInBackground();
         initializeWeatherParameters();
-        Uri.Builder builder = WeatherURIBuilder.buildWeatherURIforID(requestParams);
-        task.execute(builder);
+        Uri uri = WeatherURIBuilder.buildWeatherURIforID(requestParams);
+        task.execute(uri);
     }
 
     public ArrayAdapter<String> getArrayAdapter() {

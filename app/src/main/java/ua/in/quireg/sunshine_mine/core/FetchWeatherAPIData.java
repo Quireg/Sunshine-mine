@@ -18,7 +18,7 @@ public final class FetchWeatherAPIData {
 
     private static final String LOG_TAG = FetchWeatherAPIData.class.getSimpleName();
 
-    public static synchronized String fetch(Uri.Builder uriRequest) throws FetchWeatherFromAPIException {
+    public static synchronized String fetch(Uri uriRequest) throws FetchWeatherFromAPIException {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
         String forecastJsonStr = null;

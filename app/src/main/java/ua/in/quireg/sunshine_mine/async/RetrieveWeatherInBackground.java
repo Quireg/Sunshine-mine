@@ -20,15 +20,15 @@ import ua.in.quireg.sunshine_mine.data.WeatherDbImporter;
 import ua.in.quireg.sunshine_mine.exceptions.FetchWeatherFromAPIException;
 import ua.in.quireg.sunshine_mine.exceptions.ParseWeatherFromJsonException;
 
-public class RetrieveWeatherInBackground extends AsyncTask<Uri.Builder, Void, Pair<Uri.Builder, String>[]> {
+public class RetrieveWeatherInBackground extends AsyncTask<Uri, Void, Pair<Uri, String>[]> {
 
     private static final String LOG_TAG = RetrieveWeatherInBackground.class.getSimpleName();
 
     @Override
     @SuppressWarnings("unchecked")
-    protected Pair<Uri.Builder, String>[] doInBackground(Uri.Builder... params) {
+    protected Pair<Uri, String>[] doInBackground(Uri... params) {
         try {
-            Pair<Uri.Builder, String>[] result = new Pair[params.length];
+            Pair<Uri, String>[] result = new Pair[params.length];
             for (int i = 0; i < params.length; i++) {
                 result[i] = new Pair<>(params[i], FetchWeatherAPIData.fetch(params[i]));
             }
@@ -40,7 +40,7 @@ public class RetrieveWeatherInBackground extends AsyncTask<Uri.Builder, Void, Pa
     }
 
     @Override
-    protected void onPostExecute(Pair<Uri.Builder, String>[] pairs) {
+    protected void onPostExecute(Pair<Uri, String>[] pairs) {
         if (pairs == null) {
             Log.e(LOG_TAG, "Fetch error. See stacktrace");
             return;
@@ -53,18 +53,9 @@ public class RetrieveWeatherInBackground extends AsyncTask<Uri.Builder, Void, Pa
         }
         //TODO notify about successful sync.
 
-//        //Update ListView adapter
-//        List<String> arrayListOfData = new ArrayList<>(Arrays.asList(strings));
-//        arrayAdapter.clear();
-//        for (int i = 0; i < arrayListOfData.size(); i++) {
-//            arrayAdapter.insert(arrayListOfData.get(i), i);
-//        }
-//        arrayAdapter.notifyDataSetChanged();
-//
-//        flf.refreshColmpleted();
     }
 
-    private void parseRetrievedJson(Pair<Uri.Builder, String>[] pairs) throws ParseWeatherFromJsonException {
+    private void parseRetrievedJson(Pair<Uri, String>[] pairs) throws ParseWeatherFromJsonException {
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, false);
@@ -72,10 +63,10 @@ public class RetrieveWeatherInBackground extends AsyncTask<Uri.Builder, Void, Pa
 
 
 
-        for (Pair<Uri.Builder, String> pair : pairs) {
+        for (Pair<Uri, String> pair : pairs) {
             boolean result = false;
             try {
-                if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Processing retrieved JSON " + pair.first.build().getLastPathSegment());
+                if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Processing retrieved JSON " + pair.first.getLastPathSegment());
 
                 if (WeatherURIBuilder.uriMatcher(pair.first) == WeatherURIBuilder.CurrentWeatherUri) {
                     CurrentWeatherAPIJsonRespondModel respondModel =
