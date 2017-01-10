@@ -1,5 +1,6 @@
 package ua.in.quireg.sunshine_mine.async;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -23,6 +24,12 @@ import ua.in.quireg.sunshine_mine.exceptions.ParseWeatherFromJsonException;
 public class RetrieveWeatherInBackground extends AsyncTask<Uri, Void, Pair<Uri, String>[]> {
 
     private static final String LOG_TAG = RetrieveWeatherInBackground.class.getSimpleName();
+
+    private Context mContext;
+
+    public RetrieveWeatherInBackground(Context context) {
+        mContext = context;
+    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -61,7 +68,7 @@ public class RetrieveWeatherInBackground extends AsyncTask<Uri, Void, Pair<Uri, 
         mapper.configure(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(SerializationConfig.Feature.USE_ANNOTATIONS, true);
 
-
+        WeatherDbImporter weatherDbImporter = new WeatherDbImporter(this.mContext);
 
         for (Pair<Uri, String> pair : pairs) {
             boolean result = false;
@@ -72,19 +79,19 @@ public class RetrieveWeatherInBackground extends AsyncTask<Uri, Void, Pair<Uri, 
                     CurrentWeatherAPIJsonRespondModel respondModel =
                             mapper.readValue(pair.second, CurrentWeatherAPIJsonRespondModel.class);
 
-                    result = WeatherDbImporter.getInstance().proceedCurrentWeatherAPIJsonRespondModel(respondModel);
+                    result = weatherDbImporter.proceedCurrentWeatherAPIJsonRespondModel(respondModel);
 
                 } else if (WeatherURIBuilder.uriMatcher(pair.first) == WeatherURIBuilder.HourlyForecastUri) {
                     HourlyWeatherAPIJsonRespondModel respondModel
                             = mapper.readValue(pair.second, HourlyWeatherAPIJsonRespondModel.class);
 
-                    result = WeatherDbImporter.getInstance().proceedHourlyWeatherAPIJsonRespondModel(respondModel);
+                    result = weatherDbImporter.proceedHourlyWeatherAPIJsonRespondModel(respondModel);
 
                 } else if (WeatherURIBuilder.uriMatcher(pair.first) == WeatherURIBuilder.DailyForecastUri) {
                     DailyWeatherAPIJsonRespondModel respondModel
                             = mapper.readValue(pair.second, DailyWeatherAPIJsonRespondModel.class);
 
-                    result = WeatherDbImporter.getInstance().proceedDailyWeatherAPIJsonRespondModel(respondModel);
+                    result = weatherDbImporter.proceedDailyWeatherAPIJsonRespondModel(respondModel);
 
                 }
                 if(!result){

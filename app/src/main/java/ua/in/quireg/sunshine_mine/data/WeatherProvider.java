@@ -36,10 +36,17 @@ public class WeatherProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private WeatherDbHelper mOpenHelper;
 
-    public static final int WEATHER_BY_HOUR = 201;
-    public static final int WEATHER_BY_DAY = 202;
-    public static final int WEATHER_CURRENT = 203;
-    public static final int LOCATION = 300;
+    public static final int WEATHER_BY_HOUR = 101;
+    public static final int WEATHER_BY_HOUR_WITH_LOC = 102;
+    public static final int WEATHER_BY_HOUR_WITH_LOC_AND_DATE = 103;
+    public static final int WEATHER_BY_DAY = 201;
+    public static final int WEATHER_BY_DAY_WITH_LOC = 202;
+    public static final int WEATHER_BY_DAY_WITH_LOC_AND_DATE = 203;
+    public static final int WEATHER_CURRENT = 301;
+    public static final int WEATHER_CURRENT_WITH_LOC = 302;
+    public static final int WEATHER_CURRENT_WITH_LOC_AND_DATE = 303;
+    public static final int LOCATION = 400;
+    public static final int LOCATION_WITH_ID = 401;
 
     private static final SQLiteQueryBuilder sWeatherByHourQueryBuilder;
     private static final SQLiteQueryBuilder sWeatherByDayQueryBuilder;
@@ -82,17 +89,17 @@ public class WeatherProvider extends ContentProvider {
     private static final String sLocationSettingAndDaySelectionForHour =
             LocationEntry.TABLE_NAME +
                     "." + LocationEntry._ID + " = ? AND " +
-                    WeatherByHourEntry.COLUMN_DATE + " = ? ";
+                    WeatherByHourEntry.COLUMN_DATE + " >= ? ";
 
     private static final String sLocationSettingAndDaySelectionForDay =
             LocationEntry.TABLE_NAME +
                     "." + LocationEntry._ID + " = ? AND " +
-                    WeatherByDayEntry.COLUMN_DATE + " = ? ";
+                    WeatherByDayEntry.COLUMN_DATE + " >= ? ";
 
     private static final String sLocationSettingAndDaySelectionForCurrent =
             WeatherContract.LocationEntry.TABLE_NAME +
                     "." + WeatherContract.LocationEntry._ID + " = ? AND " +
-                    CurrentWeatherEntry.COLUMN_DATE + " = ? ";
+                    CurrentWeatherEntry.COLUMN_DATE + " >= ? ";
 
 
     private Cursor getWeatherByHour(
@@ -150,10 +157,17 @@ public class WeatherProvider extends ContentProvider {
 
         // For each type of URI you want to add, create a corresponding code.
         matcher.addURI(authority, WeatherContract.PATH_WEATHER_BY_DAY, WEATHER_BY_DAY);
+        matcher.addURI(authority, WeatherContract.PATH_WEATHER_BY_DAY + "/#", WEATHER_BY_DAY_WITH_LOC);
+        matcher.addURI(authority, WeatherContract.PATH_WEATHER_BY_DAY + "/#/#", WEATHER_BY_DAY_WITH_LOC_AND_DATE);
         matcher.addURI(authority, WeatherContract.PATH_WEATHER_BY_HOUR, WEATHER_BY_HOUR);
+        matcher.addURI(authority, WeatherContract.PATH_WEATHER_BY_HOUR + "/#", WEATHER_BY_HOUR_WITH_LOC);
+        matcher.addURI(authority, WeatherContract.PATH_WEATHER_BY_HOUR + "/#/#", WEATHER_BY_HOUR_WITH_LOC_AND_DATE);
         matcher.addURI(authority, WeatherContract.PATH_WEATHER_CURRENT, WEATHER_CURRENT);
+        matcher.addURI(authority, WeatherContract.PATH_WEATHER_CURRENT + "/#", WEATHER_CURRENT_WITH_LOC);
+        matcher.addURI(authority, WeatherContract.PATH_WEATHER_CURRENT + "/#/#", WEATHER_CURRENT_WITH_LOC_AND_DATE);
 
         matcher.addURI(authority, WeatherContract.PATH_LOCATION, LOCATION);
+        matcher.addURI(authority, WeatherContract.PATH_LOCATION + "/#", LOCATION_WITH_ID);
         return matcher;
     }
 
@@ -171,13 +185,20 @@ public class WeatherProvider extends ContentProvider {
 
         switch (match) {
             case WEATHER_BY_HOUR:
-                return WeatherByHourEntry.CONTENT_ITEM_TYPE;
+            case WEATHER_BY_HOUR_WITH_LOC:
+            case WEATHER_BY_HOUR_WITH_LOC_AND_DATE:
+                return WeatherByHourEntry.CONTENT_TYPE;
             case WEATHER_BY_DAY:
+            case WEATHER_BY_DAY_WITH_LOC:
+            case WEATHER_BY_DAY_WITH_LOC_AND_DATE:
                 return WeatherByDayEntry.CONTENT_TYPE;
             case WEATHER_CURRENT:
+            case WEATHER_CURRENT_WITH_LOC:
+            case WEATHER_CURRENT_WITH_LOC_AND_DATE:
                 return CurrentWeatherEntry.CONTENT_TYPE;
             case LOCATION:
-                return WeatherContract.LocationEntry.CONTENT_TYPE;
+            case LOCATION_WITH_ID:
+                return LocationEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -190,20 +211,26 @@ public class WeatherProvider extends ContentProvider {
         // and query the database accordingly.
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
-            case WEATHER_BY_HOUR: {
+            case WEATHER_BY_HOUR:
+            case WEATHER_BY_HOUR_WITH_LOC:
+            case WEATHER_BY_HOUR_WITH_LOC_AND_DATE:
                 retCursor = getWeatherByHour(uri, projection, sortOrder);
                 break;
-            }
-            case WEATHER_BY_DAY: {
+
+            case WEATHER_BY_DAY:
+            case WEATHER_BY_DAY_WITH_LOC:
+            case WEATHER_BY_DAY_WITH_LOC_AND_DATE:
                 retCursor = getWeatherByDay(uri, projection, sortOrder);
                 break;
-            }
-            case WEATHER_CURRENT: {
+            case WEATHER_CURRENT:
+            case WEATHER_CURRENT_WITH_LOC:
+            case WEATHER_CURRENT_WITH_LOC_AND_DATE:
                 retCursor = getWeatherCurrent(uri, projection, sortOrder);
 
                 break;
-            }
-            case LOCATION: {
+            case LOCATION:
+            case LOCATION_WITH_ID:
+                String locationSetting = WeatherContract.getLocationSettingFromUri(uri);
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         WeatherContract.LocationEntry.TABLE_NAME,
                         projection,
@@ -214,8 +241,6 @@ public class WeatherProvider extends ContentProvider {
                         sortOrder
                 );
                 break;
-            }
-
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -230,34 +255,41 @@ public class WeatherProvider extends ContentProvider {
         Uri returnUri;
 
         switch (match) {
-            case WEATHER_BY_DAY: {
+            case WEATHER_BY_DAY:
+            case WEATHER_BY_DAY_WITH_LOC:
+            case WEATHER_BY_DAY_WITH_LOC_AND_DATE:{
                 long _id = db.insert(WeatherByDayEntry.TABLE_NAME, null, values);
                 if (_id > 0)
-                    returnUri = WeatherByDayEntry.buildWeatherUri(_id);
+                    returnUri = WeatherByDayEntry.buildUri(_id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
             }
-            case WEATHER_BY_HOUR: {
+            case WEATHER_BY_HOUR:
+            case WEATHER_BY_HOUR_WITH_LOC:
+            case WEATHER_BY_HOUR_WITH_LOC_AND_DATE: {
                 long _id = db.insert(WeatherByHourEntry.TABLE_NAME, null, values);
                 if (_id > 0)
-                    returnUri = WeatherByHourEntry.buildWeatherUri(_id);
+                    returnUri = WeatherByHourEntry.buildUri(_id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
             }
-            case WEATHER_CURRENT: {
+            case WEATHER_CURRENT:
+            case WEATHER_CURRENT_WITH_LOC:
+            case WEATHER_CURRENT_WITH_LOC_AND_DATE: {
                 long _id = db.insert(CurrentWeatherEntry.TABLE_NAME, null, values);
                 if (_id > 0)
-                    returnUri = CurrentWeatherEntry.buildWeatherUri(_id);
+                    returnUri = CurrentWeatherEntry.buildUri(_id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
             }
-            case LOCATION: {
-                long _id = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null, values);
+            case LOCATION:
+            case LOCATION_WITH_ID:{
+                long _id = db.insert(LocationEntry.TABLE_NAME, null, values);
                 if (_id > 0)
-                    returnUri = WeatherContract.LocationEntry.buildLocationUri(_id);
+                    returnUri = LocationEntry.buildUri(_id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
@@ -278,18 +310,27 @@ public class WeatherProvider extends ContentProvider {
         if (null == selection) selection = "1";
         switch (match) {
             case WEATHER_BY_DAY:
+            case WEATHER_BY_DAY_WITH_LOC:
+            case WEATHER_BY_DAY_WITH_LOC_AND_DATE:
                 rowsDeleted = db.delete(
                         WeatherByDayEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             case WEATHER_BY_HOUR:
+            case WEATHER_BY_HOUR_WITH_LOC:
+            case WEATHER_BY_HOUR_WITH_LOC_AND_DATE:
                 rowsDeleted = db.delete(
                         WeatherByHourEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             case WEATHER_CURRENT:
+            case WEATHER_CURRENT_WITH_LOC:
+            case WEATHER_CURRENT_WITH_LOC_AND_DATE:
                 rowsDeleted = db.delete(
                         CurrentWeatherEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             case LOCATION:
+            case LOCATION_WITH_ID:
+                String locationSetting = WeatherContract.getLocationSettingFromUri(uri);
+
                 rowsDeleted = db.delete(
                         LocationEntry.TABLE_NAME, selection, selectionArgs);
                 break;
@@ -313,18 +354,26 @@ public class WeatherProvider extends ContentProvider {
 
         switch (match) {
             case WEATHER_BY_DAY:
+            case WEATHER_BY_DAY_WITH_LOC:
+            case WEATHER_BY_DAY_WITH_LOC_AND_DATE:
                 rowsUpdated = db.update(WeatherByDayEntry.TABLE_NAME, values, selection,
                         selectionArgs);
                 break;
             case WEATHER_BY_HOUR:
+            case WEATHER_BY_HOUR_WITH_LOC:
+            case WEATHER_BY_HOUR_WITH_LOC_AND_DATE:
                 rowsUpdated = db.update(WeatherByHourEntry.TABLE_NAME, values, selection,
                         selectionArgs);
                 break;
             case WEATHER_CURRENT:
+            case WEATHER_CURRENT_WITH_LOC:
+            case WEATHER_CURRENT_WITH_LOC_AND_DATE:
                 rowsUpdated = db.update(CurrentWeatherEntry.TABLE_NAME, values, selection,
                         selectionArgs);
                 break;
             case LOCATION:
+            case LOCATION_WITH_ID:
+                String locationSetting = WeatherContract.getLocationSettingFromUri(uri);
                 rowsUpdated = db.update(WeatherContract.LocationEntry.TABLE_NAME, values, selection,
                         selectionArgs);
                 break;
@@ -347,14 +396,20 @@ public class WeatherProvider extends ContentProvider {
         try {
             for (ContentValues value : values) {
                 long _id = 0;
-                switch (match){
+                switch (match) {
                     case WEATHER_BY_DAY:
+                    case WEATHER_BY_DAY_WITH_LOC:
+                    case WEATHER_BY_DAY_WITH_LOC_AND_DATE:
                         _id = db.insert(WeatherByDayEntry.TABLE_NAME, null, value);
                         break;
                     case WEATHER_BY_HOUR:
+                    case WEATHER_BY_HOUR_WITH_LOC:
+                    case WEATHER_BY_HOUR_WITH_LOC_AND_DATE:
                         _id = db.insert(WeatherByHourEntry.TABLE_NAME, null, value);
                         break;
                     case WEATHER_CURRENT:
+                    case WEATHER_CURRENT_WITH_LOC:
+                    case WEATHER_CURRENT_WITH_LOC_AND_DATE:
                         _id = db.insert(CurrentWeatherEntry.TABLE_NAME, null, value);
                         break;
                     default:

@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2014 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package ua.in.quireg.sunshine_mine.data;
 
 import android.content.ContentResolver;
@@ -20,8 +5,6 @@ import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.format.Time;
-
-import java.net.URI;
 
 /**
  * Defines table and column names for the weather database.
@@ -46,18 +29,22 @@ public class WeatherContract {
         int julianDay = Time.getJulianDay(startDate, time.gmtoff);
         return time.setJulianDay(julianDay);
     }
+
     public static String getLocationSettingFromUri(Uri uri) {
-        return uri.getPathSegments().get(1);
-    }
-    public static long getDateFromUri(Uri uri) {
-        return Long.parseLong(uri.getPathSegments().get(2));
+        if(uri.getPathSegments().size() >= 2){
+            return uri.getPathSegments().get(1);
+        }
+        return "0";
     }
 
-    /*
-        Inner class that defines the table contents of the location table
-        Students: This is where you will add the strings.  (Similar to what has been
-        done for WeatherEntry)
-     */
+    public static long getDateFromUri(Uri uri) {
+        if(uri.getPathSegments().size() >= 3){
+            return Long.parseLong(uri.getPathSegments().get(2));
+        }
+        return 0;
+    }
+
+    //Inner class that defines the table contents of the location table
     public static final class LocationEntry implements BaseColumns {
 
         public static final Uri CONTENT_URI =
@@ -65,8 +52,6 @@ public class WeatherContract {
 
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_LOCATION;
-        public static final String CONTENT_ITEM_TYPE =
-                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_LOCATION;
 
         public static final String _ID = "id";
         public static final String TABLE_NAME = "location";
@@ -75,89 +60,12 @@ public class WeatherContract {
         public static final String COLUMN_CITY_LON = "lon";
         public static final String COLUMN_LOC_COUNTRYCODE = "countryCode";
 
-        public static Uri buildLocationUri(long id) {
+        public static Uri buildUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
     }
 
-    /* Inner class that defines the table contents of the weather table */
-//    public static final class WeatherEntry implements BaseColumns {
-//
-//        public static final Uri CONTENT_URI =
-//                BASE_CONTENT_URI.buildUpon().appendPath(PATH_WEATHER).build();
-//
-//        public static final String CONTENT_TYPE =
-//                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER;
-//        public static final String CONTENT_ITEM_TYPE =
-//                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER;
-//
-//
-//        public static final String TABLE_NAME = "weather";
-//
-//        // Column with the foreign key into the location table.
-//        public static final String COLUMN_LOC_KEY = "location_id";
-//        // Date, stored as long in milliseconds since the epoch
-//        public static final String COLUMN_DATE = "date";
-//        // Weather id as returned by API, to identify the icon to be used
-//        public static final String COLUMN_WEATHER_ID = "weather_id";
-//
-//        // Short description and long description of the weather, as provided by API.
-//        // e.g "clear" vs "sky is clear".
-//        public static final String COLUMN_SHORT_DESC = "short_desc";
-//
-//        // Min and max temperatures for the day (stored as floats)
-//        public static final String COLUMN_MIN_TEMP = "min";
-//        public static final String COLUMN_MAX_TEMP = "max";
-//
-//        // Humidity is stored as a float representing percentage
-//        public static final String COLUMN_HUMIDITY = "humidity";
-//
-//        // Humidity is stored as a float representing percentage
-//        public static final String COLUMN_PRESSURE = "pressure";
-//
-//        // Windspeed is stored as a float representing windspeed  mph
-//        public static final String COLUMN_WIND_SPEED = "wind";
-//
-//        // Degrees are meteorological degrees (e.g, 0 is north, 180 is south).  Stored as floats.
-//        public static final String COLUMN_DEGREES = "degrees";
-//
-//        //public static Uri buildWeather
-//        public static Uri buildWeatherUri(long id) {
-//            return ContentUris.withAppendedId(CONTENT_URI, id);
-//        }
-//
-//        /*
-//            Student: This is the buildWeatherLocation function you filled in.
-//         */
-//        public static Uri buildWeatherLocation(String locationSetting) {
-//            return CONTENT_URI.buildUpon().appendPath(locationSetting).build();
-//        }
-//
-//        public static Uri buildWeatherLocationWithStartDate(
-//                String locationSetting, long startDate) {
-//            long normalizedDate = normalizeDate(startDate);
-//            return CONTENT_URI.buildUpon().appendPath(locationSetting)
-//                    .appendQueryParameter(COLUMN_DATE, Long.toString(normalizedDate)).build();
-//        }
-//
-//        public static Uri buildWeatherLocationWithDate(String locationSetting, long date) {
-//            return CONTENT_URI.buildUpon().appendPath(locationSetting)
-//                    .appendPath(Long.toString(normalizeDate(date))).build();
-//        }
-//
-
-//
-
-//
-//        public static long getStartDateFromUri(Uri uri) {
-//            String dateString = uri.getQueryParameter(COLUMN_DATE);
-//            if (null != dateString && dateString.length() > 0)
-//                return Long.parseLong(dateString);
-//            else
-//                return 0;
-//        }
-//    }
 
     public static final class WeatherByDayEntry implements BaseColumns {
 
@@ -166,8 +74,6 @@ public class WeatherContract {
 
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER_BY_DAY;
-        public static final String CONTENT_ITEM_TYPE =
-                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER_BY_DAY;
 
 
         public static final String TABLE_NAME = "weather_by_day";
@@ -205,46 +111,8 @@ public class WeatherContract {
         // Humidity is stored as a float representing percentage
         public static final String COLUMN_PRESSURE = "pressure";
 
-
-
-        //public static Uri buildWeather
-        public static Uri buildWeatherUri(long id) {
+        public static Uri buildUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
-        }
-
-        /*
-            Student: This is the buildWeatherLocation function you filled in.
-         */
-        public static Uri buildWeatherLocation(String locationSetting) {
-            return CONTENT_URI.buildUpon().appendPath(locationSetting).build();
-        }
-
-        public static Uri buildWeatherLocationWithStartDate(
-                String locationSetting, long startDate) {
-            long normalizedDate = normalizeDate(startDate);
-            return CONTENT_URI.buildUpon().appendPath(locationSetting)
-                    .appendQueryParameter(COLUMN_DATE, Long.toString(normalizedDate)).build();
-        }
-
-        public static Uri buildWeatherLocationWithDate(String locationSetting, long date) {
-            return CONTENT_URI.buildUpon().appendPath(locationSetting)
-                    .appendPath(Long.toString(normalizeDate(date))).build();
-        }
-
-        public static String getLocationSettingFromUri(Uri uri) {
-            return uri.getPathSegments().get(1);
-        }
-
-        public static long getDateFromUri(Uri uri) {
-            return Long.parseLong(uri.getPathSegments().get(2));
-        }
-
-        public static long getStartDateFromUri(Uri uri) {
-            String dateString = uri.getQueryParameter(COLUMN_DATE);
-            if (null != dateString && dateString.length() > 0)
-                return Long.parseLong(dateString);
-            else
-                return 0;
         }
     }
 
@@ -255,8 +123,6 @@ public class WeatherContract {
 
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER_BY_HOUR;
-        public static final String CONTENT_ITEM_TYPE =
-                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER_BY_HOUR;
 
 
         public static final String TABLE_NAME = "weather_by_hour";
@@ -288,7 +154,6 @@ public class WeatherContract {
         public static final String COLUMN_MAX_TEMP = "temp_max";
         public static final String COLUMN_AVG_TEMP = "temp_avg";
 
-
         // Humidity is stored as a float representing percentage
         public static final String COLUMN_HUMIDITY = "humidity";
 
@@ -300,42 +165,8 @@ public class WeatherContract {
         public static final String COLUMN_CALCULATION_TIME = "dt_txt";
 
 
-        //public static Uri buildWeather
-        public static Uri buildWeatherUri(long id) {
+        public static Uri buildUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
-        }
-
-
-        public static Uri buildWeatherLocation(String locationSetting) {
-            return CONTENT_URI.buildUpon().appendPath(locationSetting).build();
-        }
-
-        public static Uri buildWeatherLocationWithStartDate(
-                String locationSetting, long startDate) {
-            long normalizedDate = normalizeDate(startDate);
-            return CONTENT_URI.buildUpon().appendPath(locationSetting)
-                    .appendQueryParameter(COLUMN_DATE, Long.toString(normalizedDate)).build();
-        }
-
-        public static Uri buildWeatherLocationWithDate(String locationSetting, long date) {
-            return CONTENT_URI.buildUpon().appendPath(locationSetting)
-                    .appendPath(Long.toString(normalizeDate(date))).build();
-        }
-
-        public static String getLocationSettingFromUri(Uri uri) {
-            return uri.getPathSegments().get(1);
-        }
-
-        public static long getDateFromUri(Uri uri) {
-            return Long.parseLong(uri.getPathSegments().get(2));
-        }
-
-        public static long getStartDateFromUri(Uri uri) {
-            String dateString = uri.getQueryParameter(COLUMN_DATE);
-            if (null != dateString && dateString.length() > 0)
-                return Long.parseLong(dateString);
-            else
-                return 0;
         }
     }
 
@@ -346,9 +177,6 @@ public class WeatherContract {
 
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER_CURRENT;
-        public static final String CONTENT_ITEM_TYPE =
-                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER_CURRENT;
-
 
         public static final String TABLE_NAME = "weather_current";
 
@@ -379,7 +207,6 @@ public class WeatherContract {
         public static final String COLUMN_MAX_TEMP = "temp_max";
         public static final String COLUMN_AVG_TEMP = "temp_avg";
 
-
         // Humidity is stored as a float representing percentage
         public static final String COLUMN_HUMIDITY = "humidity";
         //Sun, unix, UTC
@@ -390,45 +217,9 @@ public class WeatherContract {
         public static final String COLUMN_PRESSURE = "pressure";
         public static final String COLUMN_PRESSURE_SEA_LEVEL = "pressure_sea_level";
         public static final String COLUMN_PRESSURE_GRND_LEVEL = "pressure_grnd_level";
-        //Data/time of caluclation, UTC
-        public static final String COLUMN_CALCULATION_TIME = "dt_txt";
 
-
-        //public static Uri buildWeather
-        public static Uri buildWeatherUri(long id) {
+        public static Uri buildUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
-        }
-
-        public static Uri buildWeatherLocation(String locationSetting) {
-            return CONTENT_URI.buildUpon().appendPath(locationSetting).build();
-        }
-
-        public static Uri buildWeatherLocationWithStartDate(
-                String locationSetting, long startDate) {
-            long normalizedDate = normalizeDate(startDate);
-            return CONTENT_URI.buildUpon().appendPath(locationSetting)
-                    .appendQueryParameter(COLUMN_DATE, Long.toString(normalizedDate)).build();
-        }
-
-        public static Uri buildWeatherLocationWithDate(String locationSetting, long date) {
-            return CONTENT_URI.buildUpon().appendPath(locationSetting)
-                    .appendPath(Long.toString(normalizeDate(date))).build();
-        }
-
-        public static String getLocationSettingFromUri(Uri uri) {
-            return uri.getPathSegments().get(1);
-        }
-
-        public static long getDateFromUri(Uri uri) {
-            return Long.parseLong(uri.getPathSegments().get(2));
-        }
-
-        public static long getStartDateFromUri(Uri uri) {
-            String dateString = uri.getQueryParameter(COLUMN_DATE);
-            if (null != dateString && dateString.length() > 0)
-                return Long.parseLong(dateString);
-            else
-                return 0;
         }
     }
 }

@@ -91,7 +91,7 @@ public class ActivityMain extends AppCompatActivity {
     public void refreshForecast() {
         Log.d(LOG_TAG, "Refresh Forecast invoked!");
 
-        RetrieveWeatherInBackground task = new RetrieveWeatherInBackground();
+        RetrieveWeatherInBackground task = new RetrieveWeatherInBackground(getApplicationContext());
         initializeWeatherParameters();
         Uri uri = WeatherURIBuilder.buildWeatherURIforID(requestParams);
         task.execute(uri);

@@ -25,7 +25,7 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
     private static final String LOG_TAG = WeatherDbHelper.class.getSimpleName();
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 12;
+    private static final int DATABASE_VERSION = 13;
 
     static final String DATABASE_NAME = "weather.db";
 
@@ -89,6 +89,8 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
                 WeatherByHourEntry.COLUMN_AVG_TEMP + " REAL NOT NULL, " +
 
                 WeatherByHourEntry.COLUMN_CLOUDS + " REAL NOT NULL, " +
+                WeatherByHourEntry.COLUMN_RAIN + " REAL NOT NULL, " +
+                WeatherByHourEntry.COLUMN_SNOW + " REAL NOT NULL, " +
                 WeatherByHourEntry.COLUMN_HUMIDITY + " REAL NOT NULL, " +
                 WeatherByHourEntry.COLUMN_PRESSURE + " REAL NOT NULL, " +
                 WeatherByHourEntry.COLUMN_PRESSURE_SEA_LEVEL + " REAL NOT NULL, " +
@@ -123,14 +125,14 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
                 CurrentWeatherEntry.COLUMN_AVG_TEMP + " REAL NOT NULL, " +
 
                 CurrentWeatherEntry.COLUMN_CLOUDS + " REAL NOT NULL, " +
+                CurrentWeatherEntry.COLUMN_RAIN + " REAL NOT NULL, " +
+                CurrentWeatherEntry.COLUMN_SNOW + " REAL NOT NULL, " +
                 CurrentWeatherEntry.COLUMN_HUMIDITY + " REAL NOT NULL, " +
                 CurrentWeatherEntry.COLUMN_PRESSURE + " REAL NOT NULL, " +
                 CurrentWeatherEntry.COLUMN_PRESSURE_SEA_LEVEL + " REAL NOT NULL, " +
                 CurrentWeatherEntry.COLUMN_PRESSURE_GRND_LEVEL + " REAL NOT NULL, " +
                 CurrentWeatherEntry.COLUMN_WIND_SPEED + " REAL NOT NULL, " +
                 CurrentWeatherEntry.COLUMN_WIND_DEG + " REAL NOT NULL, " +
-
-                CurrentWeatherEntry.COLUMN_CALCULATION_TIME + " INTEGER NOT NULL, " +
 
                 CurrentWeatherEntry.COLUMN_SUNRISE + " INTEGER NOT NULL, " +
                 CurrentWeatherEntry.COLUMN_SUNSET + " INTEGER NOT NULL, " +

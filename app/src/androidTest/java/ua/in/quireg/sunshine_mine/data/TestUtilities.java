@@ -15,14 +15,14 @@ import ua.in.quireg.sunshine_mine.utils.PollingCheck;
 import java.util.Map;
 import java.util.Set;
 
-/*
-    Students: These are functions and some test data to make it easier to test your database and
-    Content Provider.  Note that you'll want your WeatherContract class to exactly match the one
-    in our solution to use these as-given.
- */
+import ua.in.quireg.sunshine_mine.data.WeatherContract.LocationEntry;
+import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherByDayEntry;
+import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherByHourEntry;
+import ua.in.quireg.sunshine_mine.data.WeatherContract.CurrentWeatherEntry;
+
 public class TestUtilities extends AndroidTestCase {
     static final long TEST_DATE = 1419033600L;  // December 20th, 2014
-    static final String TEST_LOCATION = "1496747";
+    static final long TEST_LOCATION = 14881488;
 
     static void validateCursor(String error, Cursor valueCursor, ContentValues expectedValues) {
         assertTrue("Empty cursor returned. " + error, valueCursor.moveToFirst());
@@ -43,82 +43,151 @@ public class TestUtilities extends AndroidTestCase {
         }
     }
 
-    /*
-        Students: Use this to create some default weather values for your database tests.
-     */
-    static ContentValues createWeatherValues(long location_Id) {
-        ContentValues weatherValues = new ContentValues();
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_LOC_KEY, location_Id);
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DATE, TEST_DATE);
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DEGREES, 1.1);
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_HUMIDITY, 1.2);
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_PRESSURE, 1.3);
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP, 75);
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP, 65);
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC, "Asteroids");
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED, 5.5);
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID, 321);
+    static ContentValues createWeatherByHourValues(long location_Id) {
+        ContentValues hourValues = new ContentValues();
+        hourValues.put(WeatherByHourEntry.COLUMN_LOC_KEY, location_Id);
+        hourValues.put(WeatherByHourEntry.COLUMN_DATE, TEST_DATE);
+        hourValues.put(WeatherByHourEntry.COLUMN_AVG_TEMP, "298.77");
+        hourValues.put(WeatherByHourEntry.COLUMN_MAX_TEMP, "298.78");
+        hourValues.put(WeatherByHourEntry.COLUMN_MIN_TEMP, "298.76");
+        hourValues.put(WeatherByHourEntry.COLUMN_HUMIDITY, "87");
+        hourValues.put(WeatherByHourEntry.COLUMN_PRESSURE, "1005.93");
+        hourValues.put(WeatherByHourEntry.COLUMN_PRESSURE_GRND_LEVEL, "1230.23");
+        hourValues.put(WeatherByHourEntry.COLUMN_PRESSURE_SEA_LEVEL, "1234.31");
+        hourValues.put(WeatherByHourEntry.COLUMN_RAIN, "23");
+        hourValues.put(WeatherByHourEntry.COLUMN_SNOW, "123");
+        hourValues.put(WeatherByHourEntry.COLUMN_CLOUDS, "88");
+        hourValues.put(WeatherByHourEntry.COLUMN_WIND_SPEED, "12");
+        hourValues.put(WeatherByHourEntry.COLUMN_WIND_DEG, "44");
+        hourValues.put(WeatherByHourEntry.COLUMN_WEATHER_DESC, "blah");
+        hourValues.put(WeatherByHourEntry.COLUMN_WEATHER_ICON, "123d");
+        hourValues.put(WeatherByHourEntry.COLUMN_WEATHER_ID, "123222");
+        hourValues.put(WeatherByHourEntry.COLUMN_WEATHER_MAIN, "Clouds");
+        hourValues.put(WeatherByHourEntry.COLUMN_CALCULATION_TIME, TEST_DATE);
 
-        return weatherValues;
+        return hourValues;
     }
 
-    /*
-        Students: You can uncomment this helper function once you have finished creating the
-        LocationEntry part of the WeatherContract.
-     */
-    static ContentValues createNovosibirskLocationValues() {
+    static ContentValues createWeatherByDayValues(long location_Id) {
+        ContentValues dailyValues = new ContentValues();
+        dailyValues.put(WeatherByDayEntry.COLUMN_LOC_KEY, location_Id);
+        dailyValues.put(WeatherByDayEntry.COLUMN_DATE, TEST_DATE);
+        dailyValues.put(WeatherByDayEntry.COLUMN_MAX_TEMP, "232");
+        dailyValues.put(WeatherByDayEntry.COLUMN_MIN_TEMP, "213");
+        dailyValues.put(WeatherByDayEntry.COLUMN_EVE_TEMP, "234");
+        dailyValues.put(WeatherByDayEntry.COLUMN_MORN_TEMP, "230");
+        dailyValues.put(WeatherByDayEntry.COLUMN_DAY_TEMP, "210");
+        dailyValues.put(WeatherByDayEntry.COLUMN_NIGHT_TEMP, "236");
+        dailyValues.put(WeatherByDayEntry.COLUMN_CLOUDS, "56");
+        dailyValues.put(WeatherByDayEntry.COLUMN_HUMIDITY, "43");
+        dailyValues.put(WeatherByDayEntry.COLUMN_PRESSURE, "1021.2");
+        dailyValues.put(WeatherByDayEntry.COLUMN_WIND_SPEED, "12.2");
+        dailyValues.put(WeatherByDayEntry.COLUMN_WIND_DEG, "22.1");
+        dailyValues.put(WeatherByDayEntry.COLUMN_WEATHER_DESC, "Asteroids");
+        dailyValues.put(WeatherByDayEntry.COLUMN_WEATHER_ICON, "9d1");
+        dailyValues.put(WeatherByDayEntry.COLUMN_WEATHER_ID, "123000");
+        dailyValues.put(WeatherByDayEntry.COLUMN_WEATHER_MAIN, "Some text");
+
+        return dailyValues;
+    }
+
+    static ContentValues createWeatherCurrentValues(long location_Id) {
+        ContentValues currentValues = new ContentValues();
+        currentValues.put(CurrentWeatherEntry.COLUMN_LOC_KEY, location_Id);
+        currentValues.put(CurrentWeatherEntry.COLUMN_DATE, TEST_DATE);
+        currentValues.put(CurrentWeatherEntry.COLUMN_AVG_TEMP, "21");
+        currentValues.put(CurrentWeatherEntry.COLUMN_MAX_TEMP, "12");
+        currentValues.put(CurrentWeatherEntry.COLUMN_MIN_TEMP, "6");
+        currentValues.put(CurrentWeatherEntry.COLUMN_HUMIDITY, "12");
+        currentValues.put(CurrentWeatherEntry.COLUMN_PRESSURE, "12");
+        currentValues.put(CurrentWeatherEntry.COLUMN_PRESSURE_GRND_LEVEL, "13");
+        currentValues.put(CurrentWeatherEntry.COLUMN_PRESSURE_SEA_LEVEL, "13.3");
+        currentValues.put(CurrentWeatherEntry.COLUMN_CLOUDS, "22");
+        currentValues.put(CurrentWeatherEntry.COLUMN_RAIN, "123");
+        currentValues.put(CurrentWeatherEntry.COLUMN_SNOW, "213");
+        currentValues.put(CurrentWeatherEntry.COLUMN_WIND_SPEED, "199");
+        currentValues.put(CurrentWeatherEntry.COLUMN_WIND_DEG, "25");
+        currentValues.put(CurrentWeatherEntry.COLUMN_WEATHER_DESC, "Nasty");
+        currentValues.put(CurrentWeatherEntry.COLUMN_WEATHER_ICON, "icon");
+        currentValues.put(CurrentWeatherEntry.COLUMN_WEATHER_ID, "32321");
+        currentValues.put(CurrentWeatherEntry.COLUMN_WEATHER_MAIN, "Some text#2");
+        currentValues.put(CurrentWeatherEntry.COLUMN_SUNRISE, "8741298712");
+        currentValues.put(CurrentWeatherEntry.COLUMN_SUNSET, "18273982938");
+        return currentValues;
+    }
+
+    static ContentValues createTestLocationValues() {
         // Create a new map of values, where column names are the keys
         ContentValues testValues = new ContentValues();
-        testValues.put(WeatherContract.LocationEntry._ID, 1496747);
-        testValues.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, "Novosibirsk");
-        testValues.put(WeatherContract.LocationEntry.COLUMN_CITY_LAT, 55.0411);
-        testValues.put(WeatherContract.LocationEntry.COLUMN_CITY_LON, 82.9344);
-        testValues.put(WeatherContract.LocationEntry.COLUMN_LOC_COUNTRYCODE, "RU");
+        testValues.put(WeatherContract.LocationEntry._ID, TEST_LOCATION);
+        testValues.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, "Myhosransk");
+        testValues.put(WeatherContract.LocationEntry.COLUMN_CITY_LAT, "14.88");
+        testValues.put(WeatherContract.LocationEntry.COLUMN_CITY_LON, "2.28");
+        testValues.put(WeatherContract.LocationEntry.COLUMN_LOC_COUNTRYCODE, "WUT");
         return testValues;
     }
 
-    /*
-        Students: You can uncomment this function once you have finished creating the
-        LocationEntry part of the WeatherContract as well as the WeatherDbHelper.
-     */
-    static long insertNovosibirskLocationValues(Context context) {
+    static long insertTestLocationValues(Context context) {
         // insert our test records into the database
         WeatherDbHelper dbHelper = new WeatherDbHelper(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.execSQL("DELETE FROM location WHERE id=1496747");
-        ContentValues testValues = TestUtilities.createNovosibirskLocationValues();
+        db.execSQL("DELETE FROM location WHERE id=14881488");
+        ContentValues testValues = TestUtilities.createTestLocationValues();
 
         long locationRowId;
-        locationRowId = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null, testValues);
+        locationRowId = db.insert(LocationEntry.TABLE_NAME, null, testValues);
 
         // Verify we got a row back.
-        assertTrue("Error: Failure to insert Novosibirsk LocationModel Values", locationRowId != -1);
+        assertTrue("Error: Failure to insert Test Location Values", locationRowId != -1);
 
         return locationRowId;
     }
-    static long insertWeatherValues(Context context) {
-        // insert our test records into the database
+
+    static long insertWeatherCurrentValues(Context context) {
+        insertTestLocationValues(context);
         WeatherDbHelper dbHelper = new WeatherDbHelper(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        ContentValues testValues = TestUtilities.createWeatherValues(1496747); //Novosibirsk location ID
+        ContentValues testValues = TestUtilities.createWeatherCurrentValues(TEST_LOCATION);
 
         long rowId;
-        rowId = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, testValues);
+        rowId = db.insert(CurrentWeatherEntry.TABLE_NAME, null, testValues);
 
         // Verify we got a row back.
-        assertTrue("Error: Failure to insert Novosibirsk Weather Values", rowId != -1);
+        assertTrue("Error: Failure to insert Current Weather Values", rowId != -1);
 
         return rowId;
     }
 
-    /*
-        Students: The functions we provide inside of TestProvider use this utility class to test
-        the ContentObserver callbacks using the PollingCheck class that we grabbed from the Android
-        CTS tests.
+    static long insertWeatherByHourValues(Context context) {
+        insertTestLocationValues(context);
+        WeatherDbHelper dbHelper = new WeatherDbHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues testValues = TestUtilities.createWeatherByHourValues(TEST_LOCATION); //Novosibirsk location ID
 
-        Note that this only tests that the onChange function is called; it does not test that the
-        correct Uri is returned.
-     */
+        long rowId;
+        rowId = db.insert(WeatherByHourEntry.TABLE_NAME, null, testValues);
+
+        // Verify we got a row back.
+        assertTrue("Error: Failure to insert WeatherByHourEntry Values", rowId != -1);
+
+        return rowId;
+    }
+
+    static long insertWeatherByDayValues(Context context) {
+        insertTestLocationValues(context);
+        WeatherDbHelper dbHelper = new WeatherDbHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues testValues = TestUtilities.createWeatherByDayValues(TEST_LOCATION);
+
+        long rowId;
+        rowId = db.insert(WeatherByDayEntry.TABLE_NAME, null, testValues);
+
+        // Verify we got a row back.
+        assertTrue("Error: Failure to insert WeatherByDayEntry Values", rowId != -1);
+
+        return rowId;
+    }
+
     static class TestContentObserver extends ContentObserver {
         final HandlerThread mHT;
         boolean mContentChanged;

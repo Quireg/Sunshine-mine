@@ -27,64 +27,63 @@ import android.os.Build;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
+import ua.in.quireg.sunshine_mine.data.WeatherContract.LocationEntry;
+import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherByDayEntry;
+import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherByHourEntry;
+import ua.in.quireg.sunshine_mine.data.WeatherContract.CurrentWeatherEntry;
 
-/*
-    Note: This is not a complete set of tests of the Sunshine ContentProvider, but it does test
-    that at least the basic functionality has been implemented correctly.
-
-    Students: Uncomment the tests in this class as you implement the functionality in your
-    ContentProvider to make sure that you've implemented things reasonably correctly.
- */
 public class TestProvider extends AndroidTestCase {
 
     public static final String LOG_TAG = TestProvider.class.getSimpleName();
 
-    /*
-       This helper function deletes all records from both database tables using the ContentProvider.
-       It also queries the ContentProvider to make sure that the database has been successfully
-       deleted, so it cannot be used until the Query and Delete functions have been written
-       in the ContentProvider.
-
-       Students: Replace the calls to deleteAllRecordsFromDB with this one after you have written
-       the delete functionality in the ContentProvider.
-     */
     public void deleteAllRecordsFromProvider() {
         mContext.getContentResolver().delete(
-                WeatherContract.WeatherEntry.CONTENT_URI,
+                CurrentWeatherEntry.CONTENT_URI,
                 null,
                 null
         );
         mContext.getContentResolver().delete(
-                WeatherContract.LocationEntry.CONTENT_URI,
+                WeatherByHourEntry.CONTENT_URI,
+                null,
+                null
+        );
+        mContext.getContentResolver().delete(
+                WeatherByDayEntry.CONTENT_URI,
                 null,
                 null
         );
 
         Cursor cursor = mContext.getContentResolver().query(
-                WeatherContract.WeatherEntry.CONTENT_URI,
+                CurrentWeatherEntry.CONTENT_URI,
                 null,
                 null,
                 null,
                 null
         );
-        assertEquals("Error: Records not deleted from Weather table during delete", 0, cursor.getCount());
+        assertEquals("Error: Records not deleted from CurrentWeather table during delete", 0, cursor.getCount());
         cursor.close();
 
         cursor = mContext.getContentResolver().query(
-                WeatherContract.LocationEntry.CONTENT_URI,
+                WeatherByDayEntry.CONTENT_URI,
                 null,
                 null,
                 null,
                 null
         );
-        assertEquals("Error: Records not deleted from LocationModel table during delete", 0, cursor.getCount());
+        assertEquals("Error: Records not deleted from WeatherByDay table during delete", 0, cursor.getCount());
+        cursor.close();
+
+        cursor = mContext.getContentResolver().query(
+                WeatherByHourEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+        assertEquals("Error: Records not deleted from WeatherByHour table during delete", 0, cursor.getCount());
         cursor.close();
     }
 
-    /*
-        Student: Refactor this function to use the deleteAllRecordsFromProvider functionality once
-        you have implemented delete functionality there.
-     */
     public void deleteAllRecords() {
         deleteAllRecordsFromProvider();
     }
@@ -99,7 +98,6 @@ public class TestProvider extends AndroidTestCase {
 
     /*
         This test checks to make sure that the content provider is registered correctly.
-        Students: Uncomment this test to make sure you've correctly registered the WeatherProvider.
      */
     public void testProviderRegistry() {
         PackageManager pm = mContext.getPackageManager();
@@ -115,7 +113,7 @@ public class TestProvider extends AndroidTestCase {
 
             // Make sure that the registered authority matches the authority from the Contract.
             assertEquals("Error: WeatherProvider registered with authority: " + providerInfo.authority +
-                    " instead of authority: " + WeatherContract.CONTENT_AUTHORITY,
+                            " instead of authority: " + WeatherContract.CONTENT_AUTHORITY,
                     providerInfo.authority, WeatherContract.CONTENT_AUTHORITY);
         } catch (PackageManager.NameNotFoundException e) {
             // I guess the provider isn't registered correctly.
@@ -127,31 +125,25 @@ public class TestProvider extends AndroidTestCase {
     /*
             This test doesn't touch the database.  It verifies that the ContentProvider returns
             the correct type for each type of URI that it can handle.
-            Students: Uncomment this test to verify that your implementation of GetType is
-            functioning correctly.
          */
     public void testGetType() {
-        // content://com.example.android.sunshine.app/weather/
-        String type = mContext.getContentResolver().getType(WeatherContract.WeatherEntry.CONTENT_URI);
-        // vnd.android.cursor.dir/com.example.android.sunshine.app/weather
-        assertEquals("Error: the WeatherEntry CONTENT_URI should return WeatherEntry.CONTENT_TYPE",
-                WeatherContract.WeatherEntry.CONTENT_TYPE, type);
+        // content://com.example.android.sunshine.app/weather_current/
+        String type = mContext.getContentResolver().getType(CurrentWeatherEntry.CONTENT_URI);
+        // vnd.android.cursor.dir/com.example.android.sunshine.app/weather_current
+        assertEquals("Error: the CurrentWeatherEntry CONTENT_URI should return CurrentWeatherEntry.CONTENT_TYPE",
+                CurrentWeatherEntry.CONTENT_TYPE, type);
 
-        String testLocation = "94074";
-        // content://com.example.android.sunshine.app/weather/94074
-        type = mContext.getContentResolver().getType(
-                WeatherContract.WeatherEntry.buildWeatherLocation(testLocation));
-        // vnd.android.cursor.dir/com.example.android.sunshine.app/weather
-        assertEquals("Error: the WeatherEntry CONTENT_URI with location should return WeatherEntry.CONTENT_TYPE",
-                WeatherContract.WeatherEntry.CONTENT_TYPE, type);
+        // content://com.example.android.sunshine.app/weather_by_day/
+        type = mContext.getContentResolver().getType(WeatherByDayEntry.CONTENT_URI);
+        // vnd.android.cursor.dir/com.example.android.sunshine.app/weather_by_day
+        assertEquals("Error: the WeatherByDayEntry CONTENT_URI should return WeatherByDayEntry.CONTENT_TYPE",
+                WeatherByDayEntry.CONTENT_TYPE, type);
 
-        long testDate = 1419120000L; // December 21st, 2014
-        // content://com.example.android.sunshine.app/weather/94074/20140612
-        type = mContext.getContentResolver().getType(
-                WeatherContract.WeatherEntry.buildWeatherLocationWithDate(testLocation, testDate));
-        // vnd.android.cursor.item/com.example.android.sunshine.app/weather/1419120000
-        assertEquals("Error: the WeatherEntry CONTENT_URI with location and date should return WeatherEntry.CONTENT_ITEM_TYPE",
-                WeatherContract.WeatherEntry.CONTENT_ITEM_TYPE, type);
+        // content://com.example.android.sunshine.app/weather_by_hour/
+        type = mContext.getContentResolver().getType(WeatherByHourEntry.CONTENT_URI);
+        // vnd.android.cursor.dir/com.example.android.sunshine.app/weather_by_hour
+        assertEquals("Error: the WeatherByHourEntry CONTENT_URI should return WeatherByHourEntry.CONTENT_TYPE",
+                WeatherByHourEntry.CONTENT_TYPE, type);
 
         // content://com.example.android.sunshine.app/location/
         type = mContext.getContentResolver().getType(WeatherContract.LocationEntry.CONTENT_URI);
@@ -161,30 +153,24 @@ public class TestProvider extends AndroidTestCase {
     }
 
 
-    /*
-        This test uses the database directly to insert and then uses the ContentProvider to
-        read out the data.  Uncomment this test to see if the basic weather query functionality
-        given in the ContentProvider is working correctly.
-     */
-    public void testBasicWeatherQuery() {
+    public void testBasicWeatherByHourQuery() {
         // insert our test records into the database
         WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        ContentValues testValues = TestUtilities.createNovosibirskLocationValues();
-        long locationRowId = TestUtilities.insertNovosibirskLocationValues(mContext);
+        ContentValues testValues = TestUtilities.createTestLocationValues();
+        long locationRowId = TestUtilities.insertTestLocationValues(mContext);
 
-        // Fantastic.  Now that we have a location, add some weather!
-        ContentValues weatherValues = TestUtilities.createWeatherValues(locationRowId);
+        ContentValues weatherValues = TestUtilities.createWeatherByHourValues(TestUtilities.TEST_LOCATION);
 
-        long weatherRowId = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, weatherValues);
-        assertTrue("Unable to Insert WeatherEntry into the Database", weatherRowId != -1);
+        long weatherRowId = db.insert(WeatherByHourEntry.TABLE_NAME, null, weatherValues);
+        assertTrue("Unable to Insert WeatherByHourEntry into the Database", weatherRowId != -1);
 
         db.close();
 
         // Test the basic content provider query
         Cursor weatherCursor = mContext.getContentResolver().query(
-                WeatherContract.WeatherEntry.CONTENT_URI,
+                WeatherByHourEntry.buildUri(TestUtilities.TEST_LOCATION),
                 null,
                 null,
                 null,
@@ -192,25 +178,76 @@ public class TestProvider extends AndroidTestCase {
         );
 
         // Make sure we get the correct cursor out of the database
-        TestUtilities.validateCursor("testBasicWeatherQuery", weatherCursor, weatherValues);
+        TestUtilities.validateCursor("testBasicWeatherByHourQuery", weatherCursor, weatherValues);
     }
 
-    /*
-        This test uses the database directly to insert and then uses the ContentProvider to
-        read out the data.  Uncomment this test to see if your location queries are
-        performing correctly.
-     */
+    public void testBasicWeatherByDayQuery() {
+        // insert our test records into the database
+        WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues testValues = TestUtilities.createTestLocationValues();
+        long locationRowId = TestUtilities.insertTestLocationValues(mContext);
+
+        ContentValues weatherValues = TestUtilities.createWeatherByDayValues(TestUtilities.TEST_LOCATION);
+
+        long weatherRowId = db.insert(WeatherByDayEntry.TABLE_NAME, null, weatherValues);
+        assertTrue("Unable to Insert WeatherByDayEntry into the Database", weatherRowId != -1);
+
+        db.close();
+
+        // Test the basic content provider query
+        Cursor weatherCursor = mContext.getContentResolver().query(
+                WeatherByDayEntry.buildUri(TestUtilities.TEST_LOCATION),
+                null,
+                null,
+                null,
+                null
+        );
+
+        // Make sure we get the correct cursor out of the database
+        TestUtilities.validateCursor("testBasicWeatherByDayQuery", weatherCursor, weatherValues);
+    }
+
+    public void testBasicWeatherCurrentQuery() {
+        // insert our test records into the database
+        WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues testValues = TestUtilities.createTestLocationValues();
+        long locationRowId = TestUtilities.insertTestLocationValues(mContext);
+
+        ContentValues weatherValues = TestUtilities.createWeatherCurrentValues(TestUtilities.TEST_LOCATION);
+
+        long weatherRowId = db.insert(CurrentWeatherEntry.TABLE_NAME, null, weatherValues);
+        assertTrue("Unable to Insert CurrentWeatherEntry into the Database", weatherRowId != -1);
+
+        db.close();
+
+        // Test the basic content provider query
+        Cursor weatherCursor = mContext.getContentResolver().query(
+                CurrentWeatherEntry.buildUri(TestUtilities.TEST_LOCATION),
+                null,
+                null,
+                null,
+                null
+        );
+
+        // Make sure we get the correct cursor out of the database
+        TestUtilities.validateCursor("testBasicWeatherCurrentQuery", weatherCursor, weatherValues);
+    }
+
     public void testBasicLocationQueries() {
         // insert our test records into the database
         WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        ContentValues testValues = TestUtilities.createNovosibirskLocationValues();
-        long locationRowId = TestUtilities.insertNovosibirskLocationValues(mContext);
+        ContentValues testValues = TestUtilities.createTestLocationValues();
+        long locationRowId = TestUtilities.insertTestLocationValues(mContext);
 
         // Test the basic content provider query
         Cursor locationCursor = mContext.getContentResolver().query(
-                WeatherContract.LocationEntry.CONTENT_URI,
+                LocationEntry.buildUri(TestUtilities.TEST_LOCATION),
                 null,
                 null,
                 null,
@@ -222,9 +259,9 @@ public class TestProvider extends AndroidTestCase {
 
         // Has the NotificationUri been set correctly? --- we can only test this easily against API
         // level 19 or greater because getNotificationUri was added in API level 19.
-        if ( Build.VERSION.SDK_INT >= 19 ) {
+        if (Build.VERSION.SDK_INT >= 19) {
             assertEquals("Error: LocationModel Query did not properly set NotificationUri",
-                    locationCursor.getNotificationUri(), WeatherContract.LocationEntry.CONTENT_URI);
+                    locationCursor.getNotificationUri(), LocationEntry.CONTENT_URI);
         }
     }
 
@@ -234,7 +271,7 @@ public class TestProvider extends AndroidTestCase {
      */
     public void testUpdateLocation() {
         // Create a new map of values, where column names are the keys
-        ContentValues values = TestUtilities.createNovosibirskLocationValues();
+        ContentValues values = TestUtilities.createTestLocationValues();
 
         Uri locationUri = mContext.getContentResolver().
                 insert(WeatherContract.LocationEntry.CONTENT_URI, values);
@@ -257,7 +294,7 @@ public class TestProvider extends AndroidTestCase {
 
         int count = mContext.getContentResolver().update(
                 WeatherContract.LocationEntry.CONTENT_URI, updatedValues, WeatherContract.LocationEntry._ID + "= ?",
-                new String[] { Long.toString(locationRowId)});
+                new String[]{Long.toString(locationRowId)});
         assertEquals(count, 1);
 
         // Test to make sure our observer is called.  If not, we throw an assertion.
@@ -287,11 +324,9 @@ public class TestProvider extends AndroidTestCase {
 
     // Make sure we can still delete after adding/updating stuff
     //
-    // Student: Uncomment this test after you have completed writing the insert functionality
-    // in your provider.  It relies on insertions with testInsertReadProvider, so insert and
-    // query functionality must also be complete before this test can be used.
+
     public void testInsertReadProvider() {
-        ContentValues testValues = TestUtilities.createNovosibirskLocationValues();
+        ContentValues testValues = TestUtilities.createTestLocationValues();
 
         // Register a content observer for our insert.  This time, directly with the content resolver
         TestUtilities.TestContentObserver tco = TestUtilities.getTestContentObserver();
@@ -324,17 +359,17 @@ public class TestProvider extends AndroidTestCase {
                 cursor, testValues);
 
         // Fantastic.  Now that we have a location, add some weather!
-        ContentValues weatherValues = TestUtilities.createWeatherValues(locationRowId);
+        ContentValues weatherValues = TestUtilities.createWeatherCurrentValues(locationRowId);
         // The TestContentObserver is a one-shot class
         tco = TestUtilities.getTestContentObserver();
 
-        mContext.getContentResolver().registerContentObserver(WeatherContract.WeatherEntry.CONTENT_URI, true, tco);
+        mContext.getContentResolver().registerContentObserver(CurrentWeatherEntry.CONTENT_URI, true, tco);
 
         Uri weatherInsertUri = mContext.getContentResolver()
-                .insert(WeatherContract.WeatherEntry.CONTENT_URI, weatherValues);
+                .insert(CurrentWeatherEntry.CONTENT_URI, weatherValues);
         assertTrue(weatherInsertUri != null);
 
-        // Did our content observer get called?  Students:  If this fails, your insert weather
+        // Did our content observer get called? If this fails, your insert weather
         // in your ContentProvider isn't calling
         // getContext().getContentResolver().notifyChange(uri, null);
         tco.waitForNotificationOrFail();
@@ -342,53 +377,32 @@ public class TestProvider extends AndroidTestCase {
 
         // A cursor is your primary interface to the query results.
         Cursor weatherCursor = mContext.getContentResolver().query(
-                WeatherContract.WeatherEntry.CONTENT_URI,  // Table to Query
+                CurrentWeatherEntry.CONTENT_URI,  // Table to Query
                 null, // leaving "columns" null just returns all the columns.
                 null, // cols for "where" clause
                 null, // values for "where" clause
                 null // columns to group by
         );
 
-        TestUtilities.validateCursor("testInsertReadProvider. Error validating WeatherEntry insert.",
+        TestUtilities.validateCursor("testInsertReadProvider. Error validating CurrentWeatherEntry insert.",
                 weatherCursor, weatherValues);
 
         // Add the location values in with the weather data so that we can make
         // sure that the join worked and we actually get all the values back
         weatherValues.putAll(testValues);
 
-        // Get the joined Weather and LocationModel data
-        weatherCursor = mContext.getContentResolver().query(
-                WeatherContract.WeatherEntry.buildWeatherLocation(TestUtilities.TEST_LOCATION),
-                null, // leaving "columns" null just returns all the columns.
-                null, // cols for "where" clause
-                null, // values for "where" clause
-                null  // sort order
-        );
-        TestUtilities.validateCursor("testInsertReadProvider.  Error validating joined Weather and LocationModel Data.",
-                weatherCursor, weatherValues);
+//        // Get the joined Weather and LocationModel data
+//        weatherCursor = mContext.getContentResolver().query(
+//                CurrentWeatherEntry.buildWeatherLocation(TestUtilities.TEST_LOCATION),
+//                null, // leaving "columns" null just returns all the columns.
+//                null, // cols for "where" clause
+//                null, // values for "where" clause
+//                null  // sort order
+//        );
+//        TestUtilities.validateCursor("testInsertReadProvider.  Error validating joined Weather and LocationModel Data.",
+//                weatherCursor, weatherValues);
 
-        // Get the joined Weather and LocationModel data with a start date
-        weatherCursor = mContext.getContentResolver().query(
-                WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
-                        TestUtilities.TEST_LOCATION, TestUtilities.TEST_DATE),
-                null, // leaving "columns" null just returns all the columns.
-                null, // cols for "where" clause
-                null, // values for "where" clause
-                null  // sort order
-        );
-        TestUtilities.validateCursor("testInsertReadProvider.  Error validating joined Weather and LocationModel Data with start date.",
-                weatherCursor, weatherValues);
 
-        // Get the joined Weather data for a specific date
-        weatherCursor = mContext.getContentResolver().query(
-                WeatherContract.WeatherEntry.buildWeatherLocationWithDate(TestUtilities.TEST_LOCATION, TestUtilities.TEST_DATE),
-                null,
-                null,
-                null,
-                null
-        );
-        TestUtilities.validateCursor("testInsertReadProvider.  Error validating joined Weather and LocationModel data for a specific date.",
-                weatherCursor, weatherValues);
     }
 
     // Make sure we can still delete after adding/updating stuff
@@ -403,53 +417,58 @@ public class TestProvider extends AndroidTestCase {
         TestUtilities.TestContentObserver locationObserver = TestUtilities.getTestContentObserver();
         mContext.getContentResolver().registerContentObserver(WeatherContract.LocationEntry.CONTENT_URI, true, locationObserver);
 
-        // Register a content observer for our weather delete.
-        TestUtilities.TestContentObserver weatherObserver = TestUtilities.getTestContentObserver();
-        mContext.getContentResolver().registerContentObserver(WeatherContract.WeatherEntry.CONTENT_URI, true, weatherObserver);
+        // Register a content observer for our weather_current delete.
+        TestUtilities.TestContentObserver currentWeatherObserver = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(CurrentWeatherEntry.CONTENT_URI, true, currentWeatherObserver);
 
         deleteAllRecordsFromProvider();
 
-        // Students: If either of these fail, you most-likely are not calling the
+        // If either of these fail, you most-likely are not calling the
         // getContext().getContentResolver().notifyChange(uri, null); in the ContentProvider
         // delete.  (only if the insertReadProvider is succeeding)
         locationObserver.waitForNotificationOrFail();
-        weatherObserver.waitForNotificationOrFail();
+        currentWeatherObserver.waitForNotificationOrFail();
 
         mContext.getContentResolver().unregisterContentObserver(locationObserver);
-        mContext.getContentResolver().unregisterContentObserver(weatherObserver);
+        mContext.getContentResolver().unregisterContentObserver(currentWeatherObserver);
     }
 
 
     static private final int BULK_INSERT_RECORDS_TO_INSERT = 10;
-    static ContentValues[] createBulkInsertWeatherValues(long locationRowId) {
+
+    static ContentValues[] createBulkInsertCurrentWeatherValues(long locationRowId) {
         long currentTestDate = TestUtilities.TEST_DATE;
-        long millisecondsInADay = 1000*60*60*24;
+        long millisecondsInADay = 1000 * 60 * 60 * 24;
         ContentValues[] returnContentValues = new ContentValues[BULK_INSERT_RECORDS_TO_INSERT];
 
-        for ( int i = 0; i < BULK_INSERT_RECORDS_TO_INSERT; i++, currentTestDate+= millisecondsInADay ) {
-            ContentValues weatherValues = new ContentValues();
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_LOC_KEY, locationRowId);
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DATE, currentTestDate);
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DEGREES, 1.1);
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_HUMIDITY, 1.2 + 0.01 * (float) i);
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_PRESSURE, 1.3 - 0.01 * (float) i);
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP, 75 + i);
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP, 65 - i);
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC, "Asteroids");
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED, 5.5 + 0.2 * (float) i);
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID, 321);
-            returnContentValues[i] = weatherValues;
+        for (int i = 0; i < BULK_INSERT_RECORDS_TO_INSERT; i++, currentTestDate += millisecondsInADay) {
+            ContentValues currentValues = new ContentValues();
+            currentValues.put(CurrentWeatherEntry.COLUMN_LOC_KEY, locationRowId);
+            currentValues.put(CurrentWeatherEntry.COLUMN_DATE, currentTestDate + i);
+            currentValues.put(CurrentWeatherEntry.COLUMN_AVG_TEMP, "21");
+            currentValues.put(CurrentWeatherEntry.COLUMN_MAX_TEMP, "12");
+            currentValues.put(CurrentWeatherEntry.COLUMN_MIN_TEMP, "6");
+            currentValues.put(CurrentWeatherEntry.COLUMN_HUMIDITY, "02");
+            currentValues.put(CurrentWeatherEntry.COLUMN_PRESSURE, "12");
+            currentValues.put(CurrentWeatherEntry.COLUMN_PRESSURE_GRND_LEVEL, "13");
+            currentValues.put(CurrentWeatherEntry.COLUMN_PRESSURE_SEA_LEVEL, "13.3");
+            currentValues.put(CurrentWeatherEntry.COLUMN_CLOUDS, "22");
+            currentValues.put(CurrentWeatherEntry.COLUMN_RAIN, "123");
+            currentValues.put(CurrentWeatherEntry.COLUMN_SNOW, "213");
+            currentValues.put(CurrentWeatherEntry.COLUMN_WIND_SPEED, "199");
+            currentValues.put(CurrentWeatherEntry.COLUMN_WIND_DEG, "25");
+            currentValues.put(CurrentWeatherEntry.COLUMN_WEATHER_DESC, "Nasty");
+            currentValues.put(CurrentWeatherEntry.COLUMN_WEATHER_ICON, "icon");
+            currentValues.put(CurrentWeatherEntry.COLUMN_WEATHER_ID, "032321");
+            currentValues.put(CurrentWeatherEntry.COLUMN_WEATHER_MAIN, "Some text#2");
+            returnContentValues[i] = currentValues;
         }
         return returnContentValues;
     }
 
-    // Student: Uncomment this test after you have completed writing the BulkInsert functionality
-    // in your provider.  Note that this test will work with the built-in (default) provider
-    // implementation, which just inserts records one-at-a-time, so really do implement the
-    // BulkInsert ContentProvider function.
     public void testBulkInsert() {
         // first, let's create a location value
-        ContentValues testValues = TestUtilities.createNovosibirskLocationValues();
+        ContentValues testValues = TestUtilities.createTestLocationValues();
         Uri locationUri = mContext.getContentResolver().insert(WeatherContract.LocationEntry.CONTENT_URI, testValues);
         long locationRowId = ContentUris.parseId(locationUri);
 
@@ -474,13 +493,13 @@ public class TestProvider extends AndroidTestCase {
         // Now we can bulkInsert some weather.  In fact, we only implement BulkInsert for weather
         // entries.  With ContentProviders, you really only have to implement the features you
         // use, after all.
-        ContentValues[] bulkInsertContentValues = createBulkInsertWeatherValues(locationRowId);
+        ContentValues[] bulkInsertContentValues = createBulkInsertCurrentWeatherValues(locationRowId);
 
         // Register a content observer for our bulk insert.
         TestUtilities.TestContentObserver weatherObserver = TestUtilities.getTestContentObserver();
-        mContext.getContentResolver().registerContentObserver(WeatherContract.WeatherEntry.CONTENT_URI, true, weatherObserver);
+        mContext.getContentResolver().registerContentObserver(CurrentWeatherEntry.CONTENT_URI, true, weatherObserver);
 
-        int insertCount = mContext.getContentResolver().bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI, bulkInsertContentValues);
+        int insertCount = mContext.getContentResolver().bulkInsert(CurrentWeatherEntry.CONTENT_URI, bulkInsertContentValues);
 
         // Students:  If this fails, it means that you most-likely are not calling the
         // getContext().getContentResolver().notifyChange(uri, null); in your BulkInsert
@@ -492,11 +511,11 @@ public class TestProvider extends AndroidTestCase {
 
         // A cursor is your primary interface to the query results.
         cursor = mContext.getContentResolver().query(
-                WeatherContract.WeatherEntry.CONTENT_URI,
+                CurrentWeatherEntry.CONTENT_URI,
                 null, // leaving "columns" null just returns all the columns.
                 null, // cols for "where" clause
                 null, // values for "where" clause
-                WeatherContract.WeatherEntry.COLUMN_DATE + " ASC"  // sort order == by DATE ASCENDING
+                CurrentWeatherEntry.COLUMN_DATE + " ASC"  // sort order == by DATE ASCENDING
         );
 
         // we should have as many records in the database as we've inserted
@@ -504,8 +523,8 @@ public class TestProvider extends AndroidTestCase {
 
         // and let's make sure they match the ones we created
         cursor.moveToFirst();
-        for ( int i = 0; i < BULK_INSERT_RECORDS_TO_INSERT; i++, cursor.moveToNext() ) {
-            TestUtilities.validateCurrentRecord("testBulkInsert.  Error validating WeatherEntry " + i,
+        for (int i = 0; i < BULK_INSERT_RECORDS_TO_INSERT; i++, cursor.moveToNext()) {
+            TestUtilities.validateCurrentRecord("testBulkInsert.  Error validating CurrentWeatherEntry " + i,
                     cursor, bulkInsertContentValues[i]);
         }
         cursor.close();
