@@ -3,9 +3,9 @@ package ua.in.quireg.sunshine_mine.core.models.hourly_forecast_models;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import ua.in.quireg.sunshine_mine.interfaces.IWeather;
+import ua.in.quireg.sunshine_mine.interfaces.WeatherModel;
 
-public class HourlyWeatherAPIJsonRespondModel implements IWeather{
+public class HourlyWeatherModelAPIJsonRespondModel implements WeatherModel {
     @JsonProperty("city")
     public CityModel cityModel;
 

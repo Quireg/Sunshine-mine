@@ -4,11 +4,10 @@ package ua.in.quireg.sunshine_mine.data;
 import android.content.ContentValues;
 import android.content.Context;
 
-import ua.in.quireg.sunshine_mine.core.models.current_weather_models.CurrentWeatherAPIJsonRespondModel;
-import ua.in.quireg.sunshine_mine.core.models.daily_forecast_models.DailyWeatherAPIJsonRespondModel;
-import ua.in.quireg.sunshine_mine.core.models.hourly_forecast_models.HourlyWeatherAPIJsonRespondModel;
+import ua.in.quireg.sunshine_mine.core.models.current_weather_models.CurrentWeatherModelAPIJsonRespondModel;
+import ua.in.quireg.sunshine_mine.core.models.daily_forecast_models.DailyWeatherModelAPIJsonRespondModel;
+import ua.in.quireg.sunshine_mine.core.models.hourly_forecast_models.HourlyWeatherModelAPIJsonRespondModel;
 
-import ua.in.quireg.sunshine_mine.data.WeatherContract.LocationEntry;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherByDayEntry;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherByHourEntry;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.CurrentWeatherEntry;
@@ -22,7 +21,7 @@ public class WeatherDbImporter {
     }
 
 
-    public boolean proceedHourlyWeatherAPIJsonRespondModel(HourlyWeatherAPIJsonRespondModel model) {
+    public boolean proceedHourlyWeatherAPIJsonRespondModel(HourlyWeatherModelAPIJsonRespondModel model) {
         ContentValues[] hourValuesArray = new ContentValues[model.weatherByHourModels.length];
 
         for (int i = 0; i < model.weatherByHourModels.length; i++) {
@@ -54,7 +53,7 @@ public class WeatherDbImporter {
         return true;
     }
 
-    public boolean proceedDailyWeatherAPIJsonRespondModel(DailyWeatherAPIJsonRespondModel model) {
+    public boolean proceedDailyWeatherAPIJsonRespondModel(DailyWeatherModelAPIJsonRespondModel model) {
         ContentValues[] dailyValuesArray = new ContentValues[model.weatherByDayModels.length];
 
         for (int i = 0; i < model.weatherByDayModels.length; i++) {
@@ -83,7 +82,7 @@ public class WeatherDbImporter {
         return true;
     }
 
-    public boolean proceedCurrentWeatherAPIJsonRespondModel(CurrentWeatherAPIJsonRespondModel model) {
+    public boolean proceedCurrentWeatherAPIJsonRespondModel(CurrentWeatherModelAPIJsonRespondModel model) {
 
         ContentValues currentValues = new ContentValues();
         currentValues.put(CurrentWeatherEntry.COLUMN_LOC_KEY, model.id);
