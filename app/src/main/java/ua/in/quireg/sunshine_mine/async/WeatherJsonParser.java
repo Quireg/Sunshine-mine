@@ -38,7 +38,7 @@ public class WeatherJsonParser {
 
         try {
             if (WeatherURIBuilder.uriMatcher(uriScheme) == WeatherURIBuilder.CurrentWeatherUri) {
-                 return mapper.readValue(jsonString, CurrentWeatherModelAPIJsonRespondModel.class);
+                return mapper.readValue(jsonString, CurrentWeatherModelAPIJsonRespondModel.class);
 
             } else if (WeatherURIBuilder.uriMatcher(uriScheme) == WeatherURIBuilder.HourlyForecastUri) {
                 return mapper.readValue(jsonString, HourlyWeatherModelAPIJsonRespondModel.class);

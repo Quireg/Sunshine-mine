@@ -11,14 +11,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import ua.in.quireg.sunshine_mine.BuildConfig;
-import ua.in.quireg.sunshine_mine.exceptions.FetchWeatherFromAPIException;
+import ua.in.quireg.sunshine_mine.exceptions.WeatherJsonDownloaderException;
 
 
-public final class FetchWeatherAPIData {
+public final class WeatherJsonDownloader {
 
-    private static final String LOG_TAG = FetchWeatherAPIData.class.getSimpleName();
+    private static final String LOG_TAG = WeatherJsonDownloader.class.getSimpleName();
 
-    public static synchronized String fetch(Uri uriRequest) throws FetchWeatherFromAPIException {
+    public synchronized String fetch(Uri uriRequest) throws WeatherJsonDownloaderException {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
         String forecastJsonStr = null;
@@ -35,14 +35,14 @@ public final class FetchWeatherAPIData {
             if(urlConnection.getResponseCode() != 200){
                 if(BuildConfig.DEBUG) Log.d(LOG_TAG, "Server responded with: " + urlConnection.getResponseCode()
                         + " " + urlConnection.getResponseMessage());
-                throw new FetchWeatherFromAPIException("Response code != 200");
+                throw new WeatherJsonDownloaderException("Response code != 200");
             }
 
             // Read the input stream into a String
             InputStream inputStream = urlConnection.getInputStream();
             StringBuilder buffer = new StringBuilder();
             if (inputStream == null) {
-                throw new FetchWeatherFromAPIException("Input was not created");
+                throw new WeatherJsonDownloaderException("Input was not created");
             }
             reader = new BufferedReader(new InputStreamReader(inputStream));
 
@@ -56,12 +56,12 @@ public final class FetchWeatherAPIData {
 
             if (buffer.length() == 0) {
                 // Stream was empty.  No point in parsing.
-                throw new FetchWeatherFromAPIException("Input stream is empty");
+                throw new WeatherJsonDownloaderException("Input stream is empty");
             }
             forecastJsonStr = buffer.toString();
         } catch (IOException e) {
-            Log.e("FetchWeatherAPIData", "Error: ", e);
-            throw new FetchWeatherFromAPIException("No data received");
+            Log.e("WeatherJsonDownloader", "Error: ", e);
+            throw new WeatherJsonDownloaderException("No data received");
             // If the code didn't successfully get the weather data, there's no point in attempting
             // to parse it.
         } finally {
@@ -72,7 +72,7 @@ public final class FetchWeatherAPIData {
                 try {
                     reader.close();
                 } catch (final IOException e) {
-                    Log.e("FetchWeatherAPIData", "Error closing stream: ", e);
+                    Log.e("WeatherJsonDownloader", "Error closing stream: ", e);
                 }
             }
         }
