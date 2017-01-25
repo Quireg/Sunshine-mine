@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.test.AndroidTestCase;
 
 import ua.in.quireg.sunshine_mine.utils.PollingCheck;
 
@@ -20,7 +19,10 @@ import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherByDayEntry;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherByHourEntry;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.CurrentWeatherEntry;
 
-public class TestUtilities extends AndroidTestCase {
+import static junit.framework.TestCase.*;
+
+
+public class TestUtilities {
     static final long TEST_DATE = 1419033600L;  // December 20th, 2014
     static final long TEST_LOCATION = 14881488;
 
@@ -37,6 +39,7 @@ public class TestUtilities extends AndroidTestCase {
             int idx = valueCursor.getColumnIndex(columnName);
             assertFalse("Column '" + columnName + "' not found. " + error, idx == -1);
             String expectedValue = entry.getValue().toString();
+
             assertEquals("Value '" + entry.getValue().toString() +
                     "' did not match the expected value '" +
                     expectedValue + "'. " + error, expectedValue, valueCursor.getString(idx));

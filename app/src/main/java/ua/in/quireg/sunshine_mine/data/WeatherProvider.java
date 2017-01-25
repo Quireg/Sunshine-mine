@@ -232,7 +232,7 @@ public class WeatherProvider extends ContentProvider {
             case LOCATION_WITH_ID:
                 String locationSetting = WeatherContract.getLocationSettingFromUri(uri);
                 retCursor = mOpenHelper.getReadableDatabase().query(
-                        WeatherContract.LocationEntry.TABLE_NAME,
+                        LocationEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,

@@ -18,24 +18,54 @@ package ua.in.quireg.sunshine_mine.data;
 import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
-import android.test.AndroidTestCase;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.*;
 
 import ua.in.quireg.sunshine_mine.data.WeatherContract.LocationEntry;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherByDayEntry;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherByHourEntry;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.CurrentWeatherEntry;
 
-public class TestProvider extends AndroidTestCase {
+@RunWith(AndroidJUnit4.class)
+@LargeTest
+public class TestProvider{
 
     public static final String LOG_TAG = TestProvider.class.getSimpleName();
 
+    private Context mContext;
+
+    public TestProvider(){
+        this.mContext = InstrumentationRegistry.getTargetContext();
+    }
+
+    @Before
+    public void setUp() {
+        deleteTheDatabase();
+        WeatherDbHelper.importDatabase(this.mContext);
+    }
+
+    @After
+    public void deleteTheDatabase() {
+        this.mContext.deleteDatabase(WeatherDbHelper.DATABASE_NAME);
+    }
+
+    @Test
     public void deleteAllRecordsFromProvider() {
         mContext.getContentResolver().delete(
                 CurrentWeatherEntry.CONTENT_URI,
@@ -60,7 +90,7 @@ public class TestProvider extends AndroidTestCase {
                 null,
                 null
         );
-        assertEquals("Error: Records not deleted from CurrentWeather table during delete", 0, cursor.getCount());
+        assertEquals("Error: Records not deleted from CurrentWeather table during delete", 0, cursor != null ? cursor.getCount() : -1);
         cursor.close();
 
         cursor = mContext.getContentResolver().query(
@@ -70,7 +100,7 @@ public class TestProvider extends AndroidTestCase {
                 null,
                 null
         );
-        assertEquals("Error: Records not deleted from WeatherByDay table during delete", 0, cursor.getCount());
+        assertEquals("Error: Records not deleted from WeatherByDay table during delete", 0, cursor != null ? cursor.getCount() : -1);
         cursor.close();
 
         cursor = mContext.getContentResolver().query(
@@ -80,25 +110,14 @@ public class TestProvider extends AndroidTestCase {
                 null,
                 null
         );
-        assertEquals("Error: Records not deleted from WeatherByHour table during delete", 0, cursor.getCount());
+        assertEquals("Error: Records not deleted from WeatherByHour table during delete", 0, cursor != null ? cursor.getCount() : -1);
         cursor.close();
-    }
-
-    public void deleteAllRecords() {
-        deleteAllRecordsFromProvider();
-    }
-
-    // Since we want each test to start with a clean slate, run deleteAllRecords
-    // in setUp (called by the test runner before each test).
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        deleteAllRecords();
     }
 
     /*
         This test checks to make sure that the content provider is registered correctly.
      */
+    @Test
     public void testProviderRegistry() {
         PackageManager pm = mContext.getPackageManager();
 
@@ -126,6 +145,7 @@ public class TestProvider extends AndroidTestCase {
             This test doesn't touch the database.  It verifies that the ContentProvider returns
             the correct type for each type of URI that it can handle.
          */
+    @Test
     public void testGetType() {
         // content://com.example.android.sunshine.app/weather_current/
         String type = mContext.getContentResolver().getType(CurrentWeatherEntry.CONTENT_URI);
@@ -152,7 +172,7 @@ public class TestProvider extends AndroidTestCase {
                 WeatherContract.LocationEntry.CONTENT_TYPE, type);
     }
 
-
+    @Test
     public void testBasicWeatherByHourQuery() {
         // insert our test records into the database
         WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
@@ -181,6 +201,7 @@ public class TestProvider extends AndroidTestCase {
         TestUtilities.validateCursor("testBasicWeatherByHourQuery", weatherCursor, weatherValues);
     }
 
+    @Test
     public void testBasicWeatherByDayQuery() {
         // insert our test records into the database
         WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
@@ -209,6 +230,7 @@ public class TestProvider extends AndroidTestCase {
         TestUtilities.validateCursor("testBasicWeatherByDayQuery", weatherCursor, weatherValues);
     }
 
+    @Test
     public void testBasicWeatherCurrentQuery() {
         // insert our test records into the database
         WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
@@ -237,6 +259,7 @@ public class TestProvider extends AndroidTestCase {
         TestUtilities.validateCursor("testBasicWeatherCurrentQuery", weatherCursor, weatherValues);
     }
 
+    @Test
     public void testBasicLocationQueries() {
         // insert our test records into the database
         WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
@@ -269,6 +292,7 @@ public class TestProvider extends AndroidTestCase {
         This test uses the provider to insert and then update the data. Uncomment this test to
         see if your update location is functioning correctly.
      */
+    @Test
     public void testUpdateLocation() {
         // Create a new map of values, where column names are the keys
         ContentValues values = TestUtilities.createTestLocationValues();
@@ -323,8 +347,7 @@ public class TestProvider extends AndroidTestCase {
 
 
     // Make sure we can still delete after adding/updating stuff
-    //
-
+    @Test
     public void testInsertReadProvider() {
         ContentValues testValues = TestUtilities.createTestLocationValues();
 
@@ -406,10 +429,7 @@ public class TestProvider extends AndroidTestCase {
     }
 
     // Make sure we can still delete after adding/updating stuff
-    //
-    // Student: Uncomment this test after you have completed writing the delete functionality
-    // in your provider.  It relies on insertions with testInsertReadProvider, so insert and
-    // query functionality must also be complete before this test can be used.
+    @Test
     public void testDeleteRecords() {
         testInsertReadProvider();
 
@@ -432,7 +452,6 @@ public class TestProvider extends AndroidTestCase {
         mContext.getContentResolver().unregisterContentObserver(locationObserver);
         mContext.getContentResolver().unregisterContentObserver(currentWeatherObserver);
     }
-
 
     static private final int BULK_INSERT_RECORDS_TO_INSERT = 10;
 
@@ -466,6 +485,7 @@ public class TestProvider extends AndroidTestCase {
         return returnContentValues;
     }
 
+    @Test
     public void testBulkInsert() {
         // first, let's create a location value
         ContentValues testValues = TestUtilities.createTestLocationValues();
@@ -482,8 +502,8 @@ public class TestProvider extends AndroidTestCase {
         Cursor cursor = mContext.getContentResolver().query(
                 WeatherContract.LocationEntry.CONTENT_URI,
                 null, // leaving "columns" null just returns all the columns.
-                null, // cols for "where" clause
-                null, // values for "where" clause
+                LocationEntry._ID, // cols for "where" clause
+                new String[]{String.valueOf(TestUtilities.TEST_LOCATION)}, // values for "where" clause
                 null  // sort order
         );
 

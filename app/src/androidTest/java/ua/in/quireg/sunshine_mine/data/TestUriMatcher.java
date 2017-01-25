@@ -17,13 +17,20 @@ package ua.in.quireg.sunshine_mine.data;
 
 import android.content.UriMatcher;
 import android.net.Uri;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.AndroidTestCase;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import ua.in.quireg.sunshine_mine.data.WeatherContract.LocationEntry;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherByDayEntry;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherByHourEntry;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.CurrentWeatherEntry;
 
+@RunWith(AndroidJUnit4.class)
+@SmallTest
 public class TestUriMatcher extends AndroidTestCase {
 
     // content://com.example.android.sunshine.app/weather_by_hour"
@@ -38,7 +45,7 @@ public class TestUriMatcher extends AndroidTestCase {
             .buildUpon().appendPath("14881488").build();
     private static final Uri TEST_WEATHER_BY_DAY_WITH_LOC_AND_DATE = WeatherByDayEntry.CONTENT_URI
             .buildUpon().appendPath("14881488").appendPath("1000").build();
-    // content://com.example.android.sunshine.app/weather_by_current"
+    // content://com.example.android.sunshine.app/weather_current"
     private static final Uri TEST_WEATHER_CURRENT = CurrentWeatherEntry.CONTENT_URI;
     private static final Uri TEST_WEATHER_CURRENT_WITH_LOC = CurrentWeatherEntry.CONTENT_URI
             .buildUpon().appendPath("14881488").build();
@@ -49,7 +56,7 @@ public class TestUriMatcher extends AndroidTestCase {
     private static final Uri TEST_LOCATION_WITH_ID = LocationEntry.CONTENT_URI
             .buildUpon().appendPath("14881488").build();
 
-
+    @Test
     public void testUriMatcher() {
         UriMatcher testMatcher = WeatherProvider.buildUriMatcher();
 

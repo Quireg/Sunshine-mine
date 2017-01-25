@@ -15,34 +15,55 @@
  */
 package ua.in.quireg.sunshine_mine.data;
 
-import android.test.AndroidTestCase;
+import android.content.Context;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
+import android.support.test.runner.AndroidJUnit4;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import ua.in.quireg.sunshine_mine.data.WeatherContract.LocationEntry;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherByDayEntry;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherByHourEntry;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.CurrentWeatherEntry;
 
-public class TestDb extends AndroidTestCase {
+import static junit.framework.TestCase.*;
+
+@RunWith(AndroidJUnit4.class)
+@LargeTest
+public class TestDb {
 
     public static final String LOG_TAG = TestDb.class.getSimpleName();
 
-    void deleteTheDatabase() {
-        mContext.deleteDatabase(WeatherDbHelper.DATABASE_NAME);
+    private Context mContext;
+
+    public TestDb(){
+        this.mContext = InstrumentationRegistry.getTargetContext();
     }
 
+    @After
+    public void deleteTheDatabase() {
+        this.mContext.deleteDatabase(WeatherDbHelper.DATABASE_NAME);
+    }
 
+    @Before
     public void setUp() {
         deleteTheDatabase();
-        WeatherDbHelper.importDatabase(getContext());
+        WeatherDbHelper.importDatabase(this.mContext);
     }
-
+    @Test
     public void testCreateDb() throws Throwable {
         //Not necessary anymore as application always shipped with pre-configured db.
+        assertEquals(true, true);
     }
 
+    @Test
     public void testLocationTable() throws InterruptedException {
 
         SQLiteDatabase db = new WeatherDbHelper(
@@ -66,6 +87,7 @@ public class TestDb extends AndroidTestCase {
         db.close();
     }
 
+    @Test
     public void testWeatherByDayTable() {
 
         SQLiteDatabase db = new WeatherDbHelper(
@@ -88,6 +110,7 @@ public class TestDb extends AndroidTestCase {
 
     }
 
+    @Test
     public void testWeatherByHourTable() {
 
         SQLiteDatabase db = new WeatherDbHelper(
@@ -110,6 +133,7 @@ public class TestDb extends AndroidTestCase {
 
     }
 
+    @Test
     public void testWeatherCurrentTable() {
 
         SQLiteDatabase db = new WeatherDbHelper(
@@ -132,7 +156,5 @@ public class TestDb extends AndroidTestCase {
 
     }
 
-    public long insertLocation() {
-        return -1L;
-    }
+
 }
