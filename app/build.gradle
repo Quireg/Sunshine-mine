@@ -1,14 +1,32 @@
+def keystorePropertiesFile = rootProject.file("keystore.secrets");
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+def apiKeysPropertiesFile = rootProject.file("apikeys.secrets");
+def apiKeysProperties = new Properties()
+apiKeysProperties.load(new FileInputStream(apiKeysPropertiesFile))
+
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+
+        config {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
     compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    buildToolsVersion "25.0.1"
+
     defaultConfig {
         applicationId "ua.in.quireg.sunshine_mine"
-        minSdkVersion 20
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
+        signingConfig signingConfigs.config
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -23,7 +41,7 @@ android {
     productFlavors {
     }
     buildTypes.each {
-        it.buildConfigField 'String', 'WEATHER_API_KEY', "\""+getApiKey()+"\""
+        it.buildConfigField 'String', 'WEATHER_API_KEY', apiKeysProperties['WEATHER_API_KEY']
     }
     packagingOptions {
         exclude 'META-INF/ASL2.0'
@@ -35,15 +53,6 @@ android {
     }
 
 }
-
-def getApiKey(){
-    def Properties props = new Properties()
-    props.load(new FileInputStream(new File('secrets.properties')))
-    return props['WEATHER_API_KEY']
-}
-
-
-
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')

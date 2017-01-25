@@ -22,11 +22,12 @@ public class WeatherJsonParser {
 
     private static final String LOG_TAG = WeatherFetcher.class.getSimpleName();
 
-    {
+    public WeatherJsonParser(){
         mapper = new ObjectMapper();
         mapper.configure(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(SerializationConfig.Feature.USE_ANNOTATIONS, true);
     }
+
 
     public WeatherModel parseRetrievedJson(String jsonString, Uri uriScheme) throws ParseWeatherFromJsonException {
         if(jsonString == null){
