@@ -113,7 +113,7 @@ public class FragmentForecastList extends Fragment{
         }
     }
     private void refreshRequested(){
-        ((ActivityMain)getActivity()).refreshForecast();
+        //TODO get latest data from DB
     }
 
 

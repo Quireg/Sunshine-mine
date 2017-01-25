@@ -3,10 +3,10 @@ package ua.in.quireg.sunshine_mine.core.models.current_weather_models;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import ua.in.quireg.sunshine_mine.interfaces.WeatherModel;
+import ua.in.quireg.sunshine_mine.interfaces.IWeatherModel;
 
 
-public class CurrentWeatherModelAPIJsonRespondModel implements WeatherModel {
+public class CurrentWeatherModel implements IWeatherModel {
     @JsonProperty("coord")
     public CoordinatesModel coordinates;
 

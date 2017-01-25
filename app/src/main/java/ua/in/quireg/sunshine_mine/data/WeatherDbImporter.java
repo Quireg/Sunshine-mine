@@ -4,9 +4,9 @@ package ua.in.quireg.sunshine_mine.data;
 import android.content.ContentValues;
 import android.content.Context;
 
-import ua.in.quireg.sunshine_mine.core.models.current_weather_models.CurrentWeatherModelAPIJsonRespondModel;
-import ua.in.quireg.sunshine_mine.core.models.daily_forecast_models.DailyWeatherModelAPIJsonRespondModel;
-import ua.in.quireg.sunshine_mine.core.models.hourly_forecast_models.HourlyWeatherModelAPIJsonRespondModel;
+import ua.in.quireg.sunshine_mine.core.models.current_weather_models.CurrentWeatherModel;
+import ua.in.quireg.sunshine_mine.core.models.daily_forecast_models.DailyWeatherModel;
+import ua.in.quireg.sunshine_mine.core.models.hourly_forecast_models.HourlyWeatherModel;
 
 import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherByDayEntry;
 import ua.in.quireg.sunshine_mine.data.WeatherContract.WeatherByHourEntry;
@@ -21,7 +21,7 @@ public class WeatherDbImporter {
     }
 
 
-    public boolean proceedHourlyWeatherAPIJsonRespondModel(HourlyWeatherModelAPIJsonRespondModel model) {
+    public boolean proceedHourlyWeather(HourlyWeatherModel model) {
         ContentValues[] hourValuesArray = new ContentValues[model.weatherByHourModels.length];
 
         for (int i = 0; i < model.weatherByHourModels.length; i++) {
@@ -34,13 +34,20 @@ public class WeatherDbImporter {
             hourValues.put(WeatherByHourEntry.COLUMN_MIN_TEMP, model.weatherByHourModels[i].mainModel.temp_min);
             hourValues.put(WeatherByHourEntry.COLUMN_HUMIDITY, model.weatherByHourModels[i].mainModel.humidity);
             hourValues.put(WeatherByHourEntry.COLUMN_PRESSURE, model.weatherByHourModels[i].mainModel.pressure);
+
             hourValues.put(WeatherByHourEntry.COLUMN_PRESSURE_GRND_LEVEL, model.weatherByHourModels[i].mainModel.grnd_level);
             hourValues.put(WeatherByHourEntry.COLUMN_PRESSURE_SEA_LEVEL, model.weatherByHourModels[i].mainModel.sea_level);
-            hourValues.put(WeatherByHourEntry.COLUMN_RAIN, model.weatherByHourModels[i].rainModel.rainVolume);
-            hourValues.put(WeatherByHourEntry.COLUMN_SNOW, model.weatherByHourModels[i].snowModel.snowVolume);
+
+            hourValues.put(WeatherByHourEntry.COLUMN_RAIN,
+                    model.weatherByHourModels[i].rainModel != null ? model.weatherByHourModels[i].rainModel.rainVolume : 0);
+
+            hourValues.put(WeatherByHourEntry.COLUMN_SNOW,
+                    model.weatherByHourModels[i].snowModel != null ? model.weatherByHourModels[i].snowModel.snowVolume : 0);
+
             hourValues.put(WeatherByHourEntry.COLUMN_CLOUDS, model.weatherByHourModels[i].cloudsModel.cloudiness);
             hourValues.put(WeatherByHourEntry.COLUMN_WIND_SPEED, model.weatherByHourModels[i].windModel.speed);
             hourValues.put(WeatherByHourEntry.COLUMN_WIND_DEG, model.weatherByHourModels[i].windModel.degrees);
+
             hourValues.put(WeatherByHourEntry.COLUMN_WEATHER_DESC, model.weatherByHourModels[i].weatherTypeModel[0].description);
             hourValues.put(WeatherByHourEntry.COLUMN_WEATHER_ICON, model.weatherByHourModels[i].weatherTypeModel[0].icon);
             hourValues.put(WeatherByHourEntry.COLUMN_WEATHER_ID, model.weatherByHourModels[i].weatherTypeModel[0].id);
@@ -53,7 +60,7 @@ public class WeatherDbImporter {
         return true;
     }
 
-    public boolean proceedDailyWeatherAPIJsonRespondModel(DailyWeatherModelAPIJsonRespondModel model) {
+    public boolean proceedDailyWeather(DailyWeatherModel model) {
         ContentValues[] dailyValuesArray = new ContentValues[model.weatherByDayModels.length];
 
         for (int i = 0; i < model.weatherByDayModels.length; i++) {
@@ -65,6 +72,7 @@ public class WeatherDbImporter {
             dailyValues.put(WeatherByDayEntry.COLUMN_MIN_TEMP, model.weatherByDayModels[i].temperatureModel.min);
             dailyValues.put(WeatherByDayEntry.COLUMN_EVE_TEMP, model.weatherByDayModels[i].temperatureModel.eve);
             dailyValues.put(WeatherByDayEntry.COLUMN_MORN_TEMP, model.weatherByDayModels[i].temperatureModel.morn);
+            dailyValues.put(WeatherByDayEntry.COLUMN_DAY_TEMP, model.weatherByDayModels[i].temperatureModel.day);
             dailyValues.put(WeatherByDayEntry.COLUMN_NIGHT_TEMP, model.weatherByDayModels[i].temperatureModel.night);
             dailyValues.put(WeatherByDayEntry.COLUMN_CLOUDS, model.weatherByDayModels[i].clouds);
             dailyValues.put(WeatherByDayEntry.COLUMN_HUMIDITY, model.weatherByDayModels[i].humidity);
@@ -82,7 +90,7 @@ public class WeatherDbImporter {
         return true;
     }
 
-    public boolean proceedCurrentWeatherAPIJsonRespondModel(CurrentWeatherModelAPIJsonRespondModel model) {
+        public boolean proceedCurrentWeather(CurrentWeatherModel model) {
 
         ContentValues currentValues = new ContentValues();
         currentValues.put(CurrentWeatherEntry.COLUMN_LOC_KEY, model.id);
@@ -95,8 +103,10 @@ public class WeatherDbImporter {
         currentValues.put(CurrentWeatherEntry.COLUMN_PRESSURE_GRND_LEVEL, model.mainModel.grnd_level);
         currentValues.put(CurrentWeatherEntry.COLUMN_PRESSURE_SEA_LEVEL, model.mainModel.sea_level);
         currentValues.put(CurrentWeatherEntry.COLUMN_CLOUDS, model.cloudsModel.cloudiness);
-        currentValues.put(CurrentWeatherEntry.COLUMN_RAIN, model.rainModel.rainVolume);
-        currentValues.put(CurrentWeatherEntry.COLUMN_SNOW, model.snowModel.snowVolume);
+        currentValues.put(CurrentWeatherEntry.COLUMN_RAIN,
+                model.rainModel != null ? model.rainModel.rainVolume : 0);
+        currentValues.put(CurrentWeatherEntry.COLUMN_SNOW,
+                model.snowModel != null ? model.snowModel.snowVolume : 0);
         currentValues.put(CurrentWeatherEntry.COLUMN_WIND_SPEED, model.windModel.speed);
         currentValues.put(CurrentWeatherEntry.COLUMN_WIND_DEG, model.windModel.degrees);
         currentValues.put(CurrentWeatherEntry.COLUMN_WEATHER_DESC, model.weatherTypeModel[0].description);

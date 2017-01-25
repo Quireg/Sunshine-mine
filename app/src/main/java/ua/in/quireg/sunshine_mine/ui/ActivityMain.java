@@ -14,8 +14,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import ua.in.quireg.sunshine_mine.R;
-import ua.in.quireg.sunshine_mine.async.WeatherFetcher;
 import ua.in.quireg.sunshine_mine.core.WeatherAPIParams;
+import ua.in.quireg.sunshine_mine.core.WeatherSync;
 import ua.in.quireg.sunshine_mine.core.WeatherURIBuilder;
 import ua.in.quireg.sunshine_mine.data.WeatherDbHelper;
 
@@ -40,6 +40,9 @@ public class ActivityMain extends AppCompatActivity {
         //Initiate DB creation.
         WeatherDbHelper.importDatabase(getApplicationContext());
 
+        Thread syncThread = new Thread(new WeatherSync(getApplicationContext()));
+        syncThread.start();
+
         arrayAdapter = new ArrayAdapter<>(getApplicationContext(),
                 R.layout.fragment_forecast_list_item,
                 new ArrayList<>(Arrays.asList(forecast))
@@ -59,43 +62,6 @@ public class ActivityMain extends AppCompatActivity {
         }
     }
 
-    private void initializeWeatherParameters() {
-        //TODO get rid of this method.
-        pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        requestParams = new HashMap<String, String>();
-
-        //get location from params
-        requestParams.put(WeatherAPIParams.CITY_ID, pref.getString(getString(R.string.settings_location_key), initializeLocationSetting()));
-        requestParams.put(WeatherAPIParams.ZIP_CODE, "01032");
-        requestParams.put(WeatherAPIParams.DAYS_COUNT, pref.getString(getString(R.string.settings_dayscount_key), "15"));
-        requestParams.put(WeatherAPIParams.UNITS, "metric");
-        requestParams.put(WeatherAPIParams.OUTPUT_MODE, "json");
-    }
-
-    private String initializeLocationSetting() {
-        //TODO get default location from GPS
-        String result = "703448";
-
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        if (!preferences.contains(getString(R.string.settings_location_key))) {
-            SharedPreferences.Editor editor = preferences.edit();
-            if (editor != null) {
-                editor.putString(getString(R.string.settings_location_key), result);
-                editor.apply();
-            }
-        }
-        return result;
-    }
-
-    //callback to retrieve new data and propagate it to array adapter
-    public void refreshForecast() {
-        Log.d(LOG_TAG, "Refresh Forecast invoked!");
-
-        WeatherFetcher task = new WeatherFetcher(getApplicationContext());
-        initializeWeatherParameters();
-        Uri uri = WeatherURIBuilder.buildWeatherURIforID(requestParams);
-        task.execute(uri);
-    }
 
     public ArrayAdapter<String> getArrayAdapter() {
         return arrayAdapter;

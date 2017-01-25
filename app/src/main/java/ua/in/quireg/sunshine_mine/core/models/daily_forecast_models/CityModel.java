@@ -16,7 +16,7 @@ public class CityModel {
     @JsonProperty("country")
     public String country;
 
-//    @JsonProperty("population")
-//    public int population;
+    @JsonProperty("population")
+    public int population;
 
 }
