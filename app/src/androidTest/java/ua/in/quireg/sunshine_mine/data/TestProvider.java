@@ -178,8 +178,7 @@ public class TestProvider{
         WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        ContentValues testValues = TestUtilities.createTestLocationValues();
-        long locationRowId = TestUtilities.insertTestLocationValues(mContext);
+        TestUtilities.insertTestLocationValues(mContext);
 
         ContentValues weatherValues = TestUtilities.createWeatherByHourValues(TestUtilities.TEST_LOCATION);
 
@@ -191,10 +190,10 @@ public class TestProvider{
         // Test the basic content provider query
         Cursor weatherCursor = mContext.getContentResolver().query(
                 WeatherByHourEntry.buildUri(TestUtilities.TEST_LOCATION),
-                null,
-                null,
-                null,
-                null
+                null, // leaving "columns" null just returns all the columns.
+                LocationEntry._ID, // cols for "where" clause
+                new String[]{String.valueOf(TestUtilities.TEST_LOCATION)}, // values for "where" clause
+                null  // sort order
         );
 
         // Make sure we get the correct cursor out of the database
@@ -207,8 +206,7 @@ public class TestProvider{
         WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        ContentValues testValues = TestUtilities.createTestLocationValues();
-        long locationRowId = TestUtilities.insertTestLocationValues(mContext);
+        TestUtilities.insertTestLocationValues(mContext);
 
         ContentValues weatherValues = TestUtilities.createWeatherByDayValues(TestUtilities.TEST_LOCATION);
 
@@ -220,10 +218,10 @@ public class TestProvider{
         // Test the basic content provider query
         Cursor weatherCursor = mContext.getContentResolver().query(
                 WeatherByDayEntry.buildUri(TestUtilities.TEST_LOCATION),
-                null,
-                null,
-                null,
-                null
+                null, // leaving "columns" null just returns all the columns.
+                LocationEntry._ID, // cols for "where" clause
+                new String[]{String.valueOf(TestUtilities.TEST_LOCATION)}, // values for "where" clause
+                null  // sort order
         );
 
         // Make sure we get the correct cursor out of the database
@@ -236,8 +234,7 @@ public class TestProvider{
         WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        ContentValues testValues = TestUtilities.createTestLocationValues();
-        long locationRowId = TestUtilities.insertTestLocationValues(mContext);
+        TestUtilities.insertTestLocationValues(mContext);
 
         ContentValues weatherValues = TestUtilities.createWeatherCurrentValues(TestUtilities.TEST_LOCATION);
 
@@ -249,10 +246,10 @@ public class TestProvider{
         // Test the basic content provider query
         Cursor weatherCursor = mContext.getContentResolver().query(
                 CurrentWeatherEntry.buildUri(TestUtilities.TEST_LOCATION),
-                null,
-                null,
-                null,
-                null
+                null, // leaving "columns" null just returns all the columns.
+                LocationEntry._ID, // cols for "where" clause
+                new String[]{String.valueOf(TestUtilities.TEST_LOCATION)}, // values for "where" clause
+                null  // sort order
         );
 
         // Make sure we get the correct cursor out of the database
@@ -265,20 +262,20 @@ public class TestProvider{
         WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        ContentValues testValues = TestUtilities.createTestLocationValues();
+        ContentValues locationValues = TestUtilities.createTestLocationValues();
         long locationRowId = TestUtilities.insertTestLocationValues(mContext);
 
         // Test the basic content provider query
         Cursor locationCursor = mContext.getContentResolver().query(
                 LocationEntry.buildUri(TestUtilities.TEST_LOCATION),
-                null,
-                null,
-                null,
-                null
+                null, // leaving "columns" null just returns all the columns.
+                LocationEntry._ID, // cols for "where" clause
+                new String[]{String.valueOf(TestUtilities.TEST_LOCATION)}, // values for "where" clause
+                null  // sort order
         );
 
         // Make sure we get the correct cursor out of the database
-        TestUtilities.validateCursor("testBasicLocationQueries, location query", locationCursor, testValues);
+        TestUtilities.validateCursor("testBasicLocationQueries, location query", locationCursor, locationValues);
 
         // Has the NotificationUri been set correctly? --- we can only test this easily against API
         // level 19 or greater because getNotificationUri was added in API level 19.
