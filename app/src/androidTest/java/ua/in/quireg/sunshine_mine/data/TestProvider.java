@@ -147,26 +147,27 @@ public class TestProvider{
          */
     @Test
     public void testGetType() {
-        // content://com.example.android.sunshine.app/weather_current/
-        String type = mContext.getContentResolver().getType(CurrentWeatherEntry.CONTENT_URI);
+        // content://com.example.android.sunshine.app/weather_current/#
+        Uri uri = Uri.parse(CurrentWeatherEntry.CONTENT_URI + "/#");
+        String type = mContext.getContentResolver().getType(uri);
         // vnd.android.cursor.dir/com.example.android.sunshine.app/weather_current
         assertEquals("Error: the CurrentWeatherEntry CONTENT_URI should return CurrentWeatherEntry.CONTENT_TYPE",
                 CurrentWeatherEntry.CONTENT_TYPE, type);
 
         // content://com.example.android.sunshine.app/weather_by_day/
-        type = mContext.getContentResolver().getType(WeatherByDayEntry.CONTENT_URI);
+        type = mContext.getContentResolver().getType(Uri.parse(WeatherByDayEntry.CONTENT_URI + "/#"));
         // vnd.android.cursor.dir/com.example.android.sunshine.app/weather_by_day
         assertEquals("Error: the WeatherByDayEntry CONTENT_URI should return WeatherByDayEntry.CONTENT_TYPE",
                 WeatherByDayEntry.CONTENT_TYPE, type);
 
         // content://com.example.android.sunshine.app/weather_by_hour/
-        type = mContext.getContentResolver().getType(WeatherByHourEntry.CONTENT_URI);
+        type = mContext.getContentResolver().getType(Uri.parse(WeatherByHourEntry.CONTENT_URI + "/#"));
         // vnd.android.cursor.dir/com.example.android.sunshine.app/weather_by_hour
         assertEquals("Error: the WeatherByHourEntry CONTENT_URI should return WeatherByHourEntry.CONTENT_TYPE",
                 WeatherByHourEntry.CONTENT_TYPE, type);
 
         // content://com.example.android.sunshine.app/location/
-        type = mContext.getContentResolver().getType(WeatherContract.LocationEntry.CONTENT_URI);
+        type = mContext.getContentResolver().getType(Uri.parse(LocationEntry.CONTENT_URI + "/#"));
         // vnd.android.cursor.dir/com.example.android.sunshine.app/location
         assertEquals("Error: the LocationEntry CONTENT_URI should return LocationEntry.CONTENT_TYPE",
                 WeatherContract.LocationEntry.CONTENT_TYPE, type);
@@ -248,7 +249,7 @@ public class TestProvider{
                 CurrentWeatherEntry.buildUri(TestUtilities.TEST_LOCATION),
                 null, // leaving "columns" null just returns all the columns.
                 LocationEntry._ID, // cols for "where" clause
-                new String[]{String.valueOf(TestUtilities.TEST_LOCATION)}, // values for "where" clause
+                new String[]{String.valueOf(TestUtilities.TEST_LOCATION), String.valueOf(TestUtilities.TEST_TIME)}, // values for "where" clause
                 null  // sort order
         );
 
@@ -453,7 +454,7 @@ public class TestProvider{
     static private final int BULK_INSERT_RECORDS_TO_INSERT = 10;
 
     static ContentValues[] createBulkInsertCurrentWeatherValues(long locationRowId) {
-        long currentTestDate = TestUtilities.TEST_DATE;
+        long currentTestDate = TestUtilities.TEST_TIME;
         long millisecondsInADay = 1000 * 60 * 60 * 24;
         ContentValues[] returnContentValues = new ContentValues[BULK_INSERT_RECORDS_TO_INSERT];
 
@@ -486,7 +487,7 @@ public class TestProvider{
     public void testBulkInsert() {
         // first, let's create a location value
         ContentValues testValues = TestUtilities.createTestLocationValues();
-        Uri locationUri = mContext.getContentResolver().insert(WeatherContract.LocationEntry.CONTENT_URI, testValues);
+        Uri locationUri = mContext.getContentResolver().insert(LocationEntry.CONTENT_URI, testValues);
         long locationRowId = ContentUris.parseId(locationUri);
 
         // Verify we got a row back.

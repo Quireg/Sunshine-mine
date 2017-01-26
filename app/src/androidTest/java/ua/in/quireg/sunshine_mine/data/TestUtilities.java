@@ -23,7 +23,7 @@ import static junit.framework.TestCase.*;
 
 
 public class TestUtilities {
-    static final long TEST_DATE = 1419033600L;  // December 20th, 2014
+    static final long TEST_TIME = 1419033600L; // December 20th, 2014
     static final long TEST_LOCATION = 14881488;
 
     static void validateCursor(String error, Cursor valueCursor, ContentValues expectedValues) {
@@ -49,7 +49,7 @@ public class TestUtilities {
     static ContentValues createWeatherByHourValues(long location_Id) {
         ContentValues hourValues = new ContentValues();
         hourValues.put(WeatherByHourEntry.COLUMN_LOC_KEY, location_Id);
-        hourValues.put(WeatherByHourEntry.COLUMN_DATE, TEST_DATE);
+        hourValues.put(WeatherByHourEntry.COLUMN_DATE, TEST_TIME);
         hourValues.put(WeatherByHourEntry.COLUMN_AVG_TEMP, "298.77");
         hourValues.put(WeatherByHourEntry.COLUMN_MAX_TEMP, "298.78");
         hourValues.put(WeatherByHourEntry.COLUMN_MIN_TEMP, "298.76");
@@ -66,7 +66,7 @@ public class TestUtilities {
         hourValues.put(WeatherByHourEntry.COLUMN_WEATHER_ICON, "123d");
         hourValues.put(WeatherByHourEntry.COLUMN_WEATHER_ID, "123222");
         hourValues.put(WeatherByHourEntry.COLUMN_WEATHER_MAIN, "Clouds");
-        hourValues.put(WeatherByHourEntry.COLUMN_CALCULATION_TIME, TEST_DATE);
+        hourValues.put(WeatherByHourEntry.COLUMN_CALCULATION_TIME, TEST_TIME);
 
         return hourValues;
     }
@@ -74,7 +74,7 @@ public class TestUtilities {
     static ContentValues createWeatherByDayValues(long location_Id) {
         ContentValues dailyValues = new ContentValues();
         dailyValues.put(WeatherByDayEntry.COLUMN_LOC_KEY, location_Id);
-        dailyValues.put(WeatherByDayEntry.COLUMN_DATE, TEST_DATE);
+        dailyValues.put(WeatherByDayEntry.COLUMN_DATE, TEST_TIME);
         dailyValues.put(WeatherByDayEntry.COLUMN_MAX_TEMP, "232");
         dailyValues.put(WeatherByDayEntry.COLUMN_MIN_TEMP, "213");
         dailyValues.put(WeatherByDayEntry.COLUMN_EVE_TEMP, "234");
@@ -97,7 +97,7 @@ public class TestUtilities {
     static ContentValues createWeatherCurrentValues(long location_Id) {
         ContentValues currentValues = new ContentValues();
         currentValues.put(CurrentWeatherEntry.COLUMN_LOC_KEY, location_Id);
-        currentValues.put(CurrentWeatherEntry.COLUMN_DATE, TEST_DATE);
+        currentValues.put(CurrentWeatherEntry.COLUMN_DATE, TEST_TIME);
         currentValues.put(CurrentWeatherEntry.COLUMN_AVG_TEMP, "21");
         currentValues.put(CurrentWeatherEntry.COLUMN_MAX_TEMP, "12");
         currentValues.put(CurrentWeatherEntry.COLUMN_MIN_TEMP, "6");
