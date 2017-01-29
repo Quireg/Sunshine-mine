@@ -4,6 +4,7 @@ package ua.in.quireg.sunshine_mine.core;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -16,23 +17,22 @@ import ua.in.quireg.sunshine_mine.data.WeatherDbImporter;
 import ua.in.quireg.sunshine_mine.exceptions.ParseWeatherFromJsonException;
 import ua.in.quireg.sunshine_mine.exceptions.WeatherJsonDownloaderException;
 import ua.in.quireg.sunshine_mine.interfaces.IWeatherModel;
+import ua.in.quireg.sunshine_mine.interfaces.IWeatherSyncCallback;
 
-public class WeatherSync implements Runnable {
+public class WeatherSync extends AsyncTask<Void, Void, Void> {
     private static final String LOG_TAG = WeatherSync.class.getSimpleName();
     WeatherURIBuilder uriBuilder;
     WeatherJsonParser parser;
     WeatherJsonDownloader downloader;
     WeatherDbImporter importer;
     long lastSyncTime = 0; //have not synced yet.
-
-
+    IWeatherSyncCallback mCallback;
 
     private Context mContext;
-    private SharedPreferences prefs;
 
-    public WeatherSync(Context context) {
+    public WeatherSync(Context context, IWeatherSyncCallback callback) {
         this.mContext = context;
-        this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        this.mCallback = callback;
 
         this.uriBuilder = new WeatherURIBuilder(this.mContext);
         this.parser = new WeatherJsonParser();
@@ -42,38 +42,34 @@ public class WeatherSync implements Runnable {
     }
 
     @Override
-    public void run() {
-
-        while (true) {
-
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    protected Void doInBackground(Void... params) {
+        try {
+            if (!isSyncRequired()) {
+                return null;
+            }
+            if (BuildConfig.DEBUG) {
+                Log.d(LOG_TAG, "Weather sync started");
             }
 
-            try {
-                if (!isSyncRequired()) {
-                    continue;
-                }
-                if (BuildConfig.DEBUG) {
-                    Log.d(LOG_TAG, "Weather sync started");
-                }
+            syncDailyWeather();
+            syncHourlyWeather();
+            syncCurrentWeather();
 
-                syncDailyWeather();
-                syncHourlyWeather();
-                syncCurrentWeather();
-
-                lastSyncTime = System.currentTimeMillis() / 1000L;
+            lastSyncTime = System.currentTimeMillis() / 1000L;
 
 
-            } catch (WeatherJsonDownloaderException e) {
-                e.printStackTrace();
-            } catch (ParseWeatherFromJsonException e) {
-                e.printStackTrace();
-            }
-
+        } catch (WeatherJsonDownloaderException e) {
+            e.printStackTrace();
+        } catch (ParseWeatherFromJsonException e) {
+            e.printStackTrace();
         }
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        super.onPostExecute(aVoid);
+        mCallback.syncCompleted();
     }
 
     private boolean isSyncRequired() {
@@ -123,4 +119,5 @@ public class WeatherSync implements Runnable {
         this.importer.proceedCurrentWeather((CurrentWeatherModel) weatherModel );
 
     }
+
 }
