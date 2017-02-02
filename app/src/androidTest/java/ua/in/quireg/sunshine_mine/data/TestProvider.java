@@ -148,7 +148,7 @@ public class TestProvider{
     @Test
     public void testGetType() {
         // content://com.example.android.sunshine.app/weather_current/#
-        Uri uri = Uri.parse(CurrentWeatherEntry.CONTENT_URI + "/#");
+        Uri uri = CurrentWeatherEntry.CONTENT_URI;
         String type = mContext.getContentResolver().getType(uri);
         // vnd.android.cursor.dir/com.example.android.sunshine.app/weather_current
         assertEquals("Error: the CurrentWeatherEntry CONTENT_URI should return CurrentWeatherEntry.CONTENT_TYPE",
@@ -248,8 +248,8 @@ public class TestProvider{
         Cursor weatherCursor = mContext.getContentResolver().query(
                 CurrentWeatherEntry.buildUri(TestUtilities.TEST_LOCATION),
                 null, // leaving "columns" null just returns all the columns.
-                LocationEntry._ID, // cols for "where" clause
-                new String[]{String.valueOf(TestUtilities.TEST_LOCATION), String.valueOf(TestUtilities.TEST_TIME)}, // values for "where" clause
+                null, // cols for "where" clause
+                null, // values for "where" clause
                 null  // sort order
         );
 
@@ -270,8 +270,8 @@ public class TestProvider{
         Cursor locationCursor = mContext.getContentResolver().query(
                 LocationEntry.buildUri(TestUtilities.TEST_LOCATION),
                 null, // leaving "columns" null just returns all the columns.
-                LocationEntry._ID, // cols for "where" clause
-                new String[]{String.valueOf(TestUtilities.TEST_LOCATION)}, // values for "where" clause
+                null, // cols for "where" clause
+                null, // values for "where" clause
                 null  // sort order
         );
 
@@ -282,7 +282,9 @@ public class TestProvider{
         // level 19 or greater because getNotificationUri was added in API level 19.
         if (Build.VERSION.SDK_INT >= 19) {
             assertEquals("Error: LocationModel Query did not properly set NotificationUri",
-                    locationCursor.getNotificationUri(), LocationEntry.CONTENT_URI);
+                    locationCursor.getNotificationUri(),
+                    LocationEntry.CONTENT_URI.buildUpon()
+                            .appendPath(String.valueOf(TestUtilities.TEST_LOCATION)).build());
         }
     }
 
@@ -351,8 +353,8 @@ public class TestProvider{
 
         // Register a content observer for our insert.  This time, directly with the content resolver
         TestUtilities.TestContentObserver tco = TestUtilities.getTestContentObserver();
-        mContext.getContentResolver().registerContentObserver(WeatherContract.LocationEntry.CONTENT_URI, true, tco);
-        Uri locationUri = mContext.getContentResolver().insert(WeatherContract.LocationEntry.CONTENT_URI, testValues);
+        mContext.getContentResolver().registerContentObserver(LocationEntry.CONTENT_URI, true, tco);
+        Uri locationUri = mContext.getContentResolver().insert(LocationEntry.CONTENT_URI, testValues);
 
         // Did our content observer get called?  Students:  If this fails, your insert location
         // isn't calling getContext().getContentResolver().notifyChange(uri, null);
@@ -364,12 +366,9 @@ public class TestProvider{
         // Verify we got a row back.
         assertTrue(locationRowId != -1);
 
-        // Data's inserted.  IN THEORY.  Now pull some out to stare at it and verify it made
-        // the round trip.
-
         // A cursor is your primary interface to the query results.
         Cursor cursor = mContext.getContentResolver().query(
-                WeatherContract.LocationEntry.CONTENT_URI,
+                LocationEntry.buildUri(TestUtilities.TEST_LOCATION),
                 null, // leaving "columns" null just returns all the columns.
                 null, // cols for "where" clause
                 null, // values for "where" clause
@@ -398,7 +397,7 @@ public class TestProvider{
 
         // A cursor is your primary interface to the query results.
         Cursor weatherCursor = mContext.getContentResolver().query(
-                CurrentWeatherEntry.CONTENT_URI,  // Table to Query
+                CurrentWeatherEntry.buildUri(TestUtilities.TEST_LOCATION),  // Table to Query
                 null, // leaving "columns" null just returns all the columns.
                 null, // cols for "where" clause
                 null, // values for "where" clause
@@ -408,20 +407,6 @@ public class TestProvider{
         TestUtilities.validateCursor("testInsertReadProvider. Error validating CurrentWeatherEntry insert.",
                 weatherCursor, weatherValues);
 
-        // Add the location values in with the weather data so that we can make
-        // sure that the join worked and we actually get all the values back
-        weatherValues.putAll(testValues);
-
-//        // Get the joined Weather and LocationModel data
-//        weatherCursor = mContext.getContentResolver().query(
-//                CurrentWeatherEntry.buildWeatherLocation(TestUtilities.TEST_LOCATION),
-//                null, // leaving "columns" null just returns all the columns.
-//                null, // cols for "where" clause
-//                null, // values for "where" clause
-//                null  // sort order
-//        );
-//        TestUtilities.validateCursor("testInsertReadProvider.  Error validating joined Weather and LocationModel Data.",
-//                weatherCursor, weatherValues);
 
 
     }
@@ -453,32 +438,12 @@ public class TestProvider{
 
     static private final int BULK_INSERT_RECORDS_TO_INSERT = 10;
 
-    static ContentValues[] createBulkInsertCurrentWeatherValues(long locationRowId) {
-        long currentTestDate = TestUtilities.TEST_TIME;
-        long millisecondsInADay = 1000 * 60 * 60 * 24;
+    static ContentValues[] createBulkInsertCurrentWeatherValues() {
+
         ContentValues[] returnContentValues = new ContentValues[BULK_INSERT_RECORDS_TO_INSERT];
 
-        for (int i = 0; i < BULK_INSERT_RECORDS_TO_INSERT; i++, currentTestDate += millisecondsInADay) {
-            ContentValues currentValues = new ContentValues();
-            currentValues.put(CurrentWeatherEntry.COLUMN_LOC_KEY, locationRowId);
-            currentValues.put(CurrentWeatherEntry.COLUMN_DATE, currentTestDate + i);
-            currentValues.put(CurrentWeatherEntry.COLUMN_AVG_TEMP, "21");
-            currentValues.put(CurrentWeatherEntry.COLUMN_MAX_TEMP, "12");
-            currentValues.put(CurrentWeatherEntry.COLUMN_MIN_TEMP, "6");
-            currentValues.put(CurrentWeatherEntry.COLUMN_HUMIDITY, "02");
-            currentValues.put(CurrentWeatherEntry.COLUMN_PRESSURE, "12");
-            currentValues.put(CurrentWeatherEntry.COLUMN_PRESSURE_GRND_LEVEL, "13");
-            currentValues.put(CurrentWeatherEntry.COLUMN_PRESSURE_SEA_LEVEL, "13.3");
-            currentValues.put(CurrentWeatherEntry.COLUMN_CLOUDS, "22");
-            currentValues.put(CurrentWeatherEntry.COLUMN_RAIN, "123");
-            currentValues.put(CurrentWeatherEntry.COLUMN_SNOW, "213");
-            currentValues.put(CurrentWeatherEntry.COLUMN_WIND_SPEED, "199");
-            currentValues.put(CurrentWeatherEntry.COLUMN_WIND_DEG, "25");
-            currentValues.put(CurrentWeatherEntry.COLUMN_WEATHER_DESC, "Nasty");
-            currentValues.put(CurrentWeatherEntry.COLUMN_WEATHER_ICON, "icon");
-            currentValues.put(CurrentWeatherEntry.COLUMN_WEATHER_ID, "032321");
-            currentValues.put(CurrentWeatherEntry.COLUMN_WEATHER_MAIN, "Some text#2");
-            returnContentValues[i] = currentValues;
+        for (int i = 0; i < BULK_INSERT_RECORDS_TO_INSERT; i++, TestUtilities.TEST_TIME += 1){
+            returnContentValues[i] = TestUtilities.createWeatherCurrentValues(TestUtilities.TEST_LOCATION);
         }
         return returnContentValues;
     }
@@ -498,10 +463,10 @@ public class TestProvider{
 
         // A cursor is your primary interface to the query results.
         Cursor cursor = mContext.getContentResolver().query(
-                WeatherContract.LocationEntry.CONTENT_URI,
+                LocationEntry.buildUri(TestUtilities.TEST_LOCATION),
                 null, // leaving "columns" null just returns all the columns.
-                LocationEntry._ID, // cols for "where" clause
-                new String[]{String.valueOf(TestUtilities.TEST_LOCATION)}, // values for "where" clause
+                null, // cols for "where" clause
+                null, // values for "where" clause
                 null  // sort order
         );
 
@@ -511,7 +476,8 @@ public class TestProvider{
         // Now we can bulkInsert some weather.  In fact, we only implement BulkInsert for weather
         // entries.  With ContentProviders, you really only have to implement the features you
         // use, after all.
-        ContentValues[] bulkInsertContentValues = createBulkInsertCurrentWeatherValues(locationRowId);
+
+        ContentValues[] bulkInsertContentValues = createBulkInsertCurrentWeatherValues();
 
         // Register a content observer for our bulk insert.
         TestUtilities.TestContentObserver weatherObserver = TestUtilities.getTestContentObserver();
@@ -529,13 +495,12 @@ public class TestProvider{
 
         // A cursor is your primary interface to the query results.
         cursor = mContext.getContentResolver().query(
-                CurrentWeatherEntry.CONTENT_URI,
+                CurrentWeatherEntry.buildUri(TestUtilities.TEST_LOCATION),
                 null, // leaving "columns" null just returns all the columns.
                 null, // cols for "where" clause
                 null, // values for "where" clause
-                CurrentWeatherEntry.COLUMN_DATE + " ASC"  // sort order == by DATE ASCENDING
+                null
         );
-
         // we should have as many records in the database as we've inserted
         assertEquals(cursor.getCount(), BULK_INSERT_RECORDS_TO_INSERT);
 

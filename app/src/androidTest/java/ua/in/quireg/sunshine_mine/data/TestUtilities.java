@@ -23,7 +23,7 @@ import static junit.framework.TestCase.*;
 
 
 public class TestUtilities {
-    static final long TEST_TIME = 1419033600L; // December 20th, 2014
+    static long TEST_TIME = System.currentTimeMillis()/1000L ;
     static final long TEST_LOCATION = 14881488;
 
     static void validateCursor(String error, Cursor valueCursor, ContentValues expectedValues) {
@@ -39,10 +39,11 @@ public class TestUtilities {
             int idx = valueCursor.getColumnIndex(columnName);
             assertFalse("Column '" + columnName + "' not found. " + error, idx == -1);
             String expectedValue = entry.getValue().toString();
+            String actualValue = valueCursor.getString(idx);
 
-            assertEquals("Value '" + entry.getValue().toString() +
+            assertEquals("Value '" + actualValue +
                     "' did not match the expected value '" +
-                    expectedValue + "'. " + error, expectedValue, valueCursor.getString(idx));
+                    expectedValue + "'. " + error, expectedValue, actualValue);
         }
     }
 

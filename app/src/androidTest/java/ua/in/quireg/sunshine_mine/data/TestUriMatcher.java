@@ -34,31 +34,18 @@ import static org.junit.Assert.*;
 public class TestUriMatcher{
 
     private static String testLoc = String.valueOf(TestUtilities.TEST_LOCATION);
-    private static String testTime = String.valueOf(TestUtilities.TEST_TIME);
 
     // content://com.example.android.sunshine.app/weather_by_hour/location_id"
     private static final Uri TEST_WEATHER_BY_HOUR_WITH_LOC = WeatherByHourEntry.CONTENT_URI
             .buildUpon().appendPath(testLoc).build();
-    // content://com.example.android.sunshine.app/weather_by_hour/location_id/date"
-    private static final Uri TEST_WEATHER_BY_HOUR_WITH_LOC_AND_DATE = WeatherByHourEntry.CONTENT_URI
-            .buildUpon().appendPath(testLoc).appendPath(testTime).build();
-
 
     // content://com.example.android.sunshine.app/weather_by_day/location_id"
     private static final Uri TEST_WEATHER_BY_DAY_WITH_LOC = WeatherByDayEntry.CONTENT_URI
             .buildUpon().appendPath(testLoc).build();
-    // content://com.example.android.sunshine.app/weather_by_day/location_id/date"
-    private static final Uri TEST_WEATHER_BY_DAY_WITH_LOC_AND_DATE = WeatherByDayEntry.CONTENT_URI
-            .buildUpon().appendPath(testLoc).appendPath(testTime).build();
-
 
     // content://com.example.android.sunshine.app/weather_current/location_id"
     private static final Uri TEST_WEATHER_CURRENT_WITH_LOC = CurrentWeatherEntry.CONTENT_URI
             .buildUpon().appendPath(testLoc).build();
-    // content://com.example.android.sunshine.app/weather_current/location_id/date"
-    private static final Uri TEST_WEATHER_CURRENT_WITH_LOC_AND_DATE = CurrentWeatherEntry.CONTENT_URI
-            .buildUpon().appendPath(testLoc).appendPath(testTime).build();
-
 
     // content://com.example.android.sunshine.app/location/location_id"
     private static final Uri TEST_LOCATION_WITH_ID = LocationEntry.CONTENT_URI
@@ -69,25 +56,19 @@ public class TestUriMatcher{
         UriMatcher testMatcher = WeatherProvider.buildUriMatcher();
 
 
-        assertEquals("Error: The WEATHER_CURRENT_WITH_LOC URI was matched incorrectly.",
+        assertEquals("Error: The WEATHER_CURRENT_WITH_LOC was matched incorrectly.",
                 testMatcher.match(TEST_WEATHER_CURRENT_WITH_LOC), WeatherProvider.WEATHER_CURRENT_WITH_LOC);
-        assertEquals("Error: The WEATHER_CURRENT_WITH_LOC_AND_DATE URI was matched incorrectly.",
-                testMatcher.match(TEST_WEATHER_CURRENT_WITH_LOC_AND_DATE), WeatherProvider.WEATHER_CURRENT_WITH_LOC_AND_DATE);
 
 
         assertEquals("Error: The WEATHER_BY_HOUR_WITH_LOC was matched incorrectly.",
                 testMatcher.match(TEST_WEATHER_BY_HOUR_WITH_LOC), WeatherProvider.WEATHER_BY_HOUR_WITH_LOC);
-        assertEquals("Error: The WEATHER_BY_HOUR_WITH_LOC_AND_DATE was matched incorrectly.",
-                testMatcher.match(TEST_WEATHER_BY_HOUR_WITH_LOC_AND_DATE), WeatherProvider.WEATHER_BY_HOUR_WITH_LOC_AND_DATE);
 
 
         assertEquals("Error: The WEATHER_BY_DAY_WITH_LOC was matched incorrectly.",
                 testMatcher.match(TEST_WEATHER_BY_DAY_WITH_LOC), WeatherProvider.WEATHER_BY_DAY_WITH_LOC);
-        assertEquals("Error: The WEATHER_BY_DAY_WITH_LOC_AND_DATE was matched incorrectly.",
-                testMatcher.match(TEST_WEATHER_BY_DAY_WITH_LOC_AND_DATE), WeatherProvider.WEATHER_BY_DAY_WITH_LOC_AND_DATE);
 
 
-        assertEquals("Error: The LOCATION_WITH_ID URI was matched incorrectly.",
+        assertEquals("Error: The LOCATION_WITH_ID was matched incorrectly.",
                 testMatcher.match(TEST_LOCATION_WITH_ID), WeatherProvider.LOCATION_WITH_ID);
     }
 }
