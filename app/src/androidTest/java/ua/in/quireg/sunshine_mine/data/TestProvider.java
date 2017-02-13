@@ -16,6 +16,7 @@
 package ua.in.quireg.sunshine_mine.data;
 
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -52,38 +53,50 @@ public class TestProvider{
 
     public TestProvider(){
         this.mContext = InstrumentationRegistry.getTargetContext();
+        WeatherDbHelper.importDatabase(this.mContext);
     }
 
     @Before
     public void setUp() {
-        deleteTheDatabase();
-        WeatherDbHelper.importDatabase(this.mContext);
+        //deleteTheDatabase();
+        deleteAllRecordsFromProvider();
     }
 
     @After
     public void deleteTheDatabase() {
-        this.mContext.deleteDatabase(WeatherDbHelper.DATABASE_NAME);
+        //this.mContext.deleteDatabase(WeatherDbHelper.DATABASE_NAME);
     }
 
     @Test
     public void deleteAllRecordsFromProvider() {
-        mContext.getContentResolver().delete(
+
+        ContentResolver contentResolver = mContext.getContentResolver();
+
+        contentResolver.delete(
                 CurrentWeatherEntry.CONTENT_URI,
                 null,
                 null
         );
-        mContext.getContentResolver().delete(
+        contentResolver.delete(
                 WeatherByHourEntry.CONTENT_URI,
                 null,
                 null
         );
-        mContext.getContentResolver().delete(
+        contentResolver.delete(
                 WeatherByDayEntry.CONTENT_URI,
                 null,
                 null
         );
+        //Only test location is deleted to keep DB consistent.
+        contentResolver.delete(LocationEntry.CONTENT_URI
+                        .buildUpon()
+                        .appendPath(String.valueOf(TestUtilities.TEST_LOCATION))
+                        .build(),
+                null,
+                null
+        );
 
-        Cursor cursor = mContext.getContentResolver().query(
+        Cursor cursor = contentResolver.query(
                 CurrentWeatherEntry.CONTENT_URI,
                 null,
                 null,
@@ -297,8 +310,10 @@ public class TestProvider{
         // Create a new map of values, where column names are the keys
         ContentValues values = TestUtilities.createTestLocationValues();
 
-        Uri locationUri = mContext.getContentResolver().
-                insert(WeatherContract.LocationEntry.CONTENT_URI, values);
+        Uri locationUri = mContext.getContentResolver().insert(
+                LocationEntry.CONTENT_URI,
+                values
+        );
         long locationRowId = ContentUris.parseId(locationUri);
 
         // Verify we got a row back.
@@ -306,25 +321,32 @@ public class TestProvider{
         Log.d(LOG_TAG, "New row id: " + locationRowId);
 
         ContentValues updatedValues = new ContentValues(values);
-        updatedValues.put(WeatherContract.LocationEntry._ID, locationRowId);
-        updatedValues.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, "Santa's Village");
+        updatedValues.put(LocationEntry._ID, locationRowId);
+        updatedValues.put(LocationEntry.COLUMN_CITY_NAME, "Santa's Village");
 
         // Create a cursor with observer to make sure that the content provider is notifying
         // the observers as expected
-        Cursor locationCursor = mContext.getContentResolver().query(WeatherContract.LocationEntry.CONTENT_URI, null, null, null, null);
+        Cursor locationCursor = mContext.getContentResolver().query(
+                LocationEntry.buildUri(locationRowId),
+                null,
+                null,
+                null,
+                null
+        );
 
         TestUtilities.TestContentObserver tco = TestUtilities.getTestContentObserver();
         locationCursor.registerContentObserver(tco);
 
         int count = mContext.getContentResolver().update(
-                WeatherContract.LocationEntry.CONTENT_URI, updatedValues, WeatherContract.LocationEntry._ID + "= ?",
+                LocationEntry.buildUri(locationRowId),
+                updatedValues,
+                LocationEntry._ID + "= ?",
                 new String[]{Long.toString(locationRowId)});
         assertEquals(count, 1);
 
         // Test to make sure our observer is called.  If not, we throw an assertion.
         //
-        // Students: If your code is failing here, it means that your content provider
-        // isn't calling getContext().getContentResolver().notifyChange(uri, null);
+
         tco.waitForNotificationOrFail();
 
         locationCursor.unregisterContentObserver(tco);
@@ -332,9 +354,9 @@ public class TestProvider{
 
         // A cursor is your primary interface to the query results.
         Cursor cursor = mContext.getContentResolver().query(
-                WeatherContract.LocationEntry.CONTENT_URI,
+                LocationEntry.buildUri(locationRowId),
                 null,   // projection
-                WeatherContract.LocationEntry._ID + " = " + locationRowId,
+                null,
                 null,   // Values for the "where" clause
                 null    // sort order
         );
@@ -416,24 +438,31 @@ public class TestProvider{
     public void testDeleteRecords() {
         testInsertReadProvider();
 
-        // Register a content observer for our location delete.
-        TestUtilities.TestContentObserver locationObserver = TestUtilities.getTestContentObserver();
-        mContext.getContentResolver().registerContentObserver(WeatherContract.LocationEntry.CONTENT_URI, true, locationObserver);
+//        // Register a content observer for our location delete.
+//        TestUtilities.TestContentObserver locationObserver = TestUtilities.getTestContentObserver();
+//        mContext.getContentResolver().registerContentObserver(LocationEntry.CONTENT_URI, true, locationObserver);
 
         // Register a content observer for our weather_current delete.
         TestUtilities.TestContentObserver currentWeatherObserver = TestUtilities.getTestContentObserver();
         mContext.getContentResolver().registerContentObserver(CurrentWeatherEntry.CONTENT_URI, true, currentWeatherObserver);
 
+        // Register a content observer for our weather_current delete.
+        TestUtilities.TestContentObserver weatherByDayObserver = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(WeatherByDayEntry.CONTENT_URI, true, weatherByDayObserver);
+
+        // Register a content observer for our weather_current delete.
+        TestUtilities.TestContentObserver weatherByHourObserver = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(WeatherByHourEntry.CONTENT_URI, true, weatherByHourObserver);
+
         deleteAllRecordsFromProvider();
 
-        // If either of these fail, you most-likely are not calling the
-        // getContext().getContentResolver().notifyChange(uri, null); in the ContentProvider
-        // delete.  (only if the insertReadProvider is succeeding)
-        locationObserver.waitForNotificationOrFail();
         currentWeatherObserver.waitForNotificationOrFail();
+        weatherByDayObserver.waitForNotificationOrFail();
+        weatherByHourObserver.waitForNotificationOrFail();
 
-        mContext.getContentResolver().unregisterContentObserver(locationObserver);
         mContext.getContentResolver().unregisterContentObserver(currentWeatherObserver);
+        mContext.getContentResolver().unregisterContentObserver(weatherByDayObserver);
+        mContext.getContentResolver().unregisterContentObserver(weatherByHourObserver);
     }
 
     static private final int BULK_INSERT_RECORDS_TO_INSERT = 10;
@@ -472,10 +501,8 @@ public class TestProvider{
 
         TestUtilities.validateCursor("testBulkInsert. Error validating LocationEntry.",
                 cursor, testValues);
+        cursor.close();
 
-        // Now we can bulkInsert some weather.  In fact, we only implement BulkInsert for weather
-        // entries.  With ContentProviders, you really only have to implement the features you
-        // use, after all.
 
         ContentValues[] bulkInsertContentValues = createBulkInsertCurrentWeatherValues();
 

@@ -52,7 +52,7 @@ public class WeatherProvider extends ContentProvider {
     private static final SQLiteQueryBuilder sWeatherByDayQueryBuilder;
     private static final SQLiteQueryBuilder sWeatherCurrentQueryBuilder;
 
-    private static final long QUERY_DATE_THRESHOLD = System.currentTimeMillis()/1000L - 604800; //5 days ago
+    private static final long QUERY_DATE_THRESHOLD = System.currentTimeMillis() / 1000L - 1814400; //15 days ago
 
 
     static {
@@ -212,10 +212,49 @@ public class WeatherProvider extends ContentProvider {
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
             case WEATHER_BY_HOUR:
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        WeatherByHourEntry.TABLE_NAME,
+                        projection,
+                        null,
+                        null,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
             case WEATHER_BY_DAY:
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        WeatherByDayEntry.TABLE_NAME,
+                        projection,
+                        null,
+                        null,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
             case WEATHER_CURRENT:
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        CurrentWeatherEntry.TABLE_NAME,
+                        projection,
+                        null,
+                        null,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
             case LOCATION:
-                throw new UnsupportedOperationException("Location id required");
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        LocationEntry.TABLE_NAME,
+                        projection,
+                        null,
+                        null,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
             case WEATHER_BY_HOUR_WITH_LOC:
                 retCursor = getWeatherByHour(uri, projection, sortOrder);
                 break;
@@ -255,7 +294,7 @@ public class WeatherProvider extends ContentProvider {
         long _id;
 
         switch (match) {
-            case WEATHER_BY_DAY:{
+            case WEATHER_BY_DAY: {
                 _id = db.insert(WeatherByDayEntry.TABLE_NAME, null, values);
                 if (_id > 0)
                     returnUri = WeatherByDayEntry.buildUri(_id);
@@ -264,7 +303,7 @@ public class WeatherProvider extends ContentProvider {
                 break;
             }
 
-            case WEATHER_BY_HOUR:{
+            case WEATHER_BY_HOUR: {
                 _id = db.insert(WeatherByHourEntry.TABLE_NAME, null, values);
                 if (_id > 0)
                     returnUri = WeatherByHourEntry.buildUri(_id);
@@ -273,7 +312,7 @@ public class WeatherProvider extends ContentProvider {
                 break;
             }
 
-            case WEATHER_CURRENT:{
+            case WEATHER_CURRENT: {
                 _id = db.insert(CurrentWeatherEntry.TABLE_NAME, null, values);
                 if (_id > 0)
                     returnUri = CurrentWeatherEntry.buildUri(_id);
@@ -282,7 +321,7 @@ public class WeatherProvider extends ContentProvider {
                 break;
             }
 
-            case LOCATION:{
+            case LOCATION: {
                 _id = db.insert(LocationEntry.TABLE_NAME, null, values);
                 if (_id > 0)
                     returnUri = LocationEntry.buildUri(_id);
@@ -293,6 +332,7 @@ public class WeatherProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Location id required");
         }
+        db.close();
         getContext().getContentResolver().notifyChange(uri, null);
         return returnUri;
     }
@@ -310,45 +350,59 @@ public class WeatherProvider extends ContentProvider {
         switch (match) {
 
             case WEATHER_BY_HOUR:
+                rowsDeleted = db.delete(
+                        WeatherByHourEntry.TABLE_NAME,
+                        null,
+                        null);
+                break;
             case WEATHER_BY_DAY:
+                rowsDeleted = db.delete(
+                        WeatherByDayEntry.TABLE_NAME,
+                        null,
+                        null);
+                break;
             case WEATHER_CURRENT:
+                rowsDeleted = db.delete(
+                        CurrentWeatherEntry.TABLE_NAME,
+                        null,
+                        null);
+                break;
             case LOCATION:
-                throw new UnsupportedOperationException("At this point wildcard delete is not required thus unsupported.");
+                throw new UnsupportedOperationException("Location wildcard delete is not required thus unsupported.");
 
             case WEATHER_BY_DAY_WITH_LOC:
                 rowsDeleted = db.delete(
                         WeatherByDayEntry.TABLE_NAME,
-                        WeatherByDayEntry.COLUMN_LOC_KEY,
+                        WeatherByDayEntry.COLUMN_LOC_KEY + "=?",
                         new String[]{location});
                 break;
 
             case WEATHER_BY_HOUR_WITH_LOC:
                 rowsDeleted = db.delete(
                         WeatherByHourEntry.TABLE_NAME,
-                        WeatherByHourEntry.COLUMN_LOC_KEY,
+                        WeatherByHourEntry.COLUMN_LOC_KEY + "=?",
                         new String[]{location});
                 break;
 
             case WEATHER_CURRENT_WITH_LOC:
                 rowsDeleted = db.delete(
                         CurrentWeatherEntry.TABLE_NAME,
-                        CurrentWeatherEntry.COLUMN_LOC_KEY,
+                        CurrentWeatherEntry.COLUMN_LOC_KEY + "=?",
                         new String[]{location});
                 break;
 
             case LOCATION_WITH_ID:
                 rowsDeleted = db.delete(
                         LocationEntry.TABLE_NAME,
-                        LocationEntry._ID,
+                        LocationEntry._ID + "=?",
                         new String[]{location});
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
+        db.close();
         // Because a null deletes all rows
-        if (rowsDeleted != 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
-        }
+        getContext().getContentResolver().notifyChange(uri, null);
         return rowsDeleted;
     }
 
@@ -370,11 +424,12 @@ public class WeatherProvider extends ContentProvider {
                         new String[]{location});
                 break;
             default:
-                throw new UnsupportedOperationException("Only location updates supported with location Id");
+                throw new UnsupportedOperationException("Only location updates with location ID supported");
         }
         if (rowsUpdated != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
+        db.close();
         return rowsUpdated;
     }
 
@@ -416,6 +471,7 @@ public class WeatherProvider extends ContentProvider {
             db.endTransaction();
         }
         getContext().getContentResolver().notifyChange(uri, null);
+        db.close();
         return returnCount;
 
     }

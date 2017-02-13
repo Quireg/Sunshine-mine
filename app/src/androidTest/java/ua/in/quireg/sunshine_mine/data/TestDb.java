@@ -70,14 +70,14 @@ public class TestDb {
                 this.mContext).getWritableDatabase();
         assertEquals(true, db.isOpen());
 
-        TestUtilities.insertTestLocationValues(this.mContext);
+        long rowId = TestUtilities.insertTestLocationValues(this.mContext);
 
         Cursor c = db.query(
                 LocationEntry.TABLE_NAME,
                 null,
                 "id = ?",
                 new String[]{
-                        "14881488"
+                        String.valueOf(rowId)
                 },
                 null,
                 null,
